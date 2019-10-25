@@ -1,8 +1,8 @@
 import Base from './Base';
 
 export default class SeminarsApi extends Base {
-  getSeminars() {
-    return this.apiClient.get('seminars');
+  getSeminars(options) {
+    return this.apiClient.post('seminars', options);
   }
 
   getSeminar(id) {

@@ -22,9 +22,9 @@ export const FETCH_SEMINARS_START = 'fetchSeminarsStart';
 export const FETCH_SEMINARS_SUCCESS = 'fetchSeminarsSuccess';
 export const FETCH_SEMINARS_FAIL = 'fetchSeminarsFail';
 
-function fetchAllSeminars({ commit }) {
+function fetchAllSeminars({ commit }, options) {
   commit(FETCH_SEMINARS_START);
-  return api.seminars.getSeminars()
+  return api.seminars.getSeminars(options)
     .then(data => commit(FETCH_SEMINARS_SUCCESS, data))
     .catch(() => commit(FETCH_SEMINARS_FAIL));
 }

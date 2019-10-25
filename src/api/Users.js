@@ -1,8 +1,8 @@
 import Base from './Base';
 
 export default class UsersApi extends Base {
-  getUsers() {
-    return this.apiClient.get('listeners');
+  getUsers(options) {
+    return this.apiClient.post('listeners', options);
   }
 
   getUser(id) {

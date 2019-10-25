@@ -25,9 +25,9 @@ export const FETCH_USERS_START = 'fetchUsersStart';
 export const FETCH_USERS_SUCCESS = 'fetchUsersSuccess';
 export const FETCH_USERS_FAIL = 'fetchUsersFail';
 
-function fetchAllUsers({ commit }) {
+function fetchAllUsers({ commit }, options) {
   commit(FETCH_USERS_START);
-  return api.users.getUsers()
+  return api.users.getUsers(options)
     .then((data) => {
       commit(FETCH_USERS_SUCCESS, data);
       return data;
