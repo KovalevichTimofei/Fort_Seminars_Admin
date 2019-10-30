@@ -18,7 +18,7 @@ module.exports = function (ctx) {
     extras: [
       // 'ionicons-v4',
       // 'mdi-v4',
-      // 'fontawesome-v5',
+      'fontawesome-v5',
       // 'eva-icons',
       // 'themify',
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
@@ -40,6 +40,7 @@ module.exports = function (ctx) {
       // * true   - Import everything from Quasar
       //            (not treeshaking Quasar; biggest bundle size; convenient)
       all: false,
+      cssAddon: true,
 
       components: [
         'QLayout',
@@ -60,10 +61,28 @@ module.exports = function (ctx) {
         'QItemSection',
         'QItemLabel',
         'QSelect',
+        'QCarousel',
+        'QCarouselSlide',
+        'QStepper',
+        'QStep',
+        'QStepperNavigation',
+        'QDialog',
+        'QCard',
+        'QCardSection',
+        'QInput',
+        'QTabs',
+        'QTab',
+        'QRouteTab',
+        'QTabPanels',
+        'QTabPanel',
+        'QExpansionItem',
+        'QList',
+        'QVideo',
       ],
 
       directives: [
         'Ripple',
+        'ClosePopup',
       ],
 
       // Quasar plugins

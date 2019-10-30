@@ -1,7 +1,6 @@
 <template>
   <div class="q-pa-md">
     <q-table
-      title="Treats"
       :data="data"
       :columns="columns"
       :row-key="row_key"
@@ -11,7 +10,22 @@
     >
 
       <template v-slot:top>
-        Top
+        <div class="top-not-selected" v-show="selected.length === 0">
+          <q-btn color="primary" @click="emitCreate">Создать</q-btn>
+        </div>
+        <div class="top-when-selected" v-show="selected.length === 1">
+          <div>{{getSelectedString()}}</div>
+          <div class="btns">
+            <q-btn color="secondary">Редактировать</q-btn>
+            <q-btn color="negative">Удалить</q-btn>
+          </div>
+        </div>
+        <div class="top-when-selected" v-show="selected.length > 1">
+          <div>{{getSelectedString()}}</div>
+          <div class="btns">
+            <q-btn color="negative">Удалить</q-btn>
+          </div>
+        </div>
       </template>
 
       <template v-slot:body-cell-preacher_info="props">
@@ -57,14 +71,31 @@ export default {
     getSelectedString() {
       return this.selected.length === 0 ? '' : `Выбрано ${this.selected.length} из ${this.data.length}`;
     },
+    emitCreate() {
+      this.$emit('show-create-modal');
+    },
   },
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
   .limited {
     max-width: 200px;
     white-space: normal;
     text-align: left;
+  }
+  .top-not-selected {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .top-when-selected {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .btns button {
+    margin: 0 10px;
   }
 </style>
