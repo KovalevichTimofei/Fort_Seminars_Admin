@@ -3,6 +3,8 @@ import api from '../../apiSingleton';
 const stateObj = {
   loading: false,
   loadingFailed: false,
+  creating: false,
+  createFailed: false,
   seminars: [],
   seminar: {},
 };
@@ -29,9 +31,21 @@ function fetchAllSeminars({ commit }, options) {
     .catch(() => commit(FETCH_SEMINARS_FAIL));
 }
 
+export const CREATE_SEMINAR_START = 'createSeminarStart';
+export const CREATE_SEMINAR_SUCCESS = 'createSeminarSuccess';
+export const CREATE_SEMINAR_FAIL = 'createSeminarFail';
+
+function createSeminar({ commit }, options) {
+  commit(CREATE_SEMINAR_START);
+  return api.seminars.createSeminar(options)
+    .then(data => commit(CREATE_SEMINAR_SUCCESS, data))
+    .catch(() => commit(CREATE_SEMINAR_FAIL));
+}
+
 const actions = {
   fetchCurrentSeminar,
   fetchAllSeminars,
+  createSeminar,
 };
 
 const mutations = {
@@ -50,6 +64,18 @@ const mutations = {
   fetchSeminarFail(state) {
     state.loading = false;
     state.loadingFailed = true;
+  },
+  createSeminarStart(state) {
+    state.creating = true;
+    state.createFailed = false;
+  },
+  createSeminarSuccess(state, data) {
+    if (data) state.seminars.push(data);
+    state.creating = false;
+  },
+  createSeminarFail(state) {
+    state.creating = false;
+    state.createFailed = true;
   },
 };
 

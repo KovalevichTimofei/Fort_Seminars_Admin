@@ -76,8 +76,9 @@ module.exports = function (ctx) {
         'QTabPanels',
         'QTabPanel',
         'QExpansionItem',
-        'QList',
         'QVideo',
+        'QDate',
+        'QPopupProxy',
       ],
 
       directives: [

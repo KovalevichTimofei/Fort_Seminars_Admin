@@ -3,6 +3,8 @@ import api from '../../apiSingleton';
 const stateObj = {
   loading: false,
   loadingFailed: false,
+  creating: false,
+  createFailed: false,
   preacher: {},
   preachers: [],
 };
@@ -29,9 +31,21 @@ function fetchAllPreachers({ commit }) {
     .catch(() => commit(FETCH_PREACHERS_FAIL));
 }
 
+export const CREATE_PREACHER_START = 'createPreacherStart';
+export const CREATE_PREACHER_SUCCESS = 'createPreacherSuccess';
+export const CREATE_PREACHER_FAIL = 'createPreacherFail';
+
+function createPreacher({ commit }, options) {
+  commit(CREATE_PREACHER_START);
+  return api.preachers.createPreacher(options)
+    .then(data => commit(CREATE_PREACHER_SUCCESS, data))
+    .catch(() => commit(CREATE_PREACHER_FAIL));
+}
+
 const actions = {
   fetchCurrentPreacher,
   fetchAllPreachers,
+  createPreacher,
 };
 
 const mutations = {
@@ -50,6 +64,18 @@ const mutations = {
   fetchPreacherFail(state) {
     state.loading = false;
     state.loadingFailed = true;
+  },
+  createPreacherStart(state) {
+    state.creating = true;
+    state.createFailed = false;
+  },
+  createPreacherSuccess(state, data) {
+    state.preacher = data || {};
+    state.creating = false;
+  },
+  createPreacherFail(state) {
+    state.creating = false;
+    state.createFailed = true;
   },
 };
 

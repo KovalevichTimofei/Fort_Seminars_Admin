@@ -46,11 +46,13 @@ module.exports = {
     'import/no-cycle': 'warn',
     'prefer-promise-reject-errors': 'off',
     'no-unused-vars': 'warn',
+    'no-unused-expressions': 'warn',
     'no-use-before-define': 'off',
     'prefer-destructuring': 'warn',
     'array-callback-return': 'off',
     'arrow-body-style': 'warn',
     'max-len': 'warn',
+    'camelcase': 'warn',
     // allow console.log during development only
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     // allow debugger during development only

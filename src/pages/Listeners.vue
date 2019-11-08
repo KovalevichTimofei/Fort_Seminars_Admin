@@ -57,7 +57,6 @@ export default {
     }),
     // eslint-disable-next-line max-len
     listenersNamesList() {
-      console.log(JSON.stringify(this.listenersList));
       return this.listenersList.map(listener => listener.ifo);
     },
   },
@@ -71,7 +70,6 @@ export default {
       });
     },
     filterListeners(val) {
-      console.log(val);
       this.$store.dispatch('listeners/fetchAllUsers', {
         filterBy: {
           field: 'seminar_id',
