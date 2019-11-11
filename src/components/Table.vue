@@ -17,13 +17,13 @@
           <div>{{getSelectedString()}}</div>
           <div class="btns">
             <q-btn color="secondary">Редактировать</q-btn>
-            <q-btn color="negative">Удалить</q-btn>
+            <q-btn color="negative" @click="emitDelete">Удалить</q-btn>
           </div>
         </div>
         <div class="top-when-selected" v-show="selected.length > 1">
           <div>{{getSelectedString()}}</div>
           <div class="btns">
-            <q-btn color="negative">Удалить</q-btn>
+            <q-btn color="negative" @click="emitDelete">Удалить</q-btn>
           </div>
         </div>
       </template>
@@ -73,6 +73,10 @@ export default {
     },
     emitCreate() {
       this.$emit('show-create-modal');
+    },
+    emitDelete() {
+      this.$emit('delete-items', this.selected.map(el => el.id));
+      this.selected = [];
     },
   },
 };

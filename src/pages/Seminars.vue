@@ -3,10 +3,11 @@
     <Table
       :columns="columns"
       :data="seminarsList"
-      row_key="title"
-      @show-create-modal="stepper = true"
+      row_key="id"
+      @show-create-modal="isStepperOpen = true"
+      @delete-items="openConfirmDeleteModal"
     />
-    <q-dialog v-model="stepper">
+    <q-dialog v-model="isStepperOpen">
       <q-stepper
         transition-prev="slide-right"
         transition-next="slide-left"
@@ -327,12 +328,26 @@
         </template>
       </q-stepper>
     </q-dialog>
+    <q-dialog v-model="isConfirmDeleteModalOpen" persistent>
+      <q-card>
+        <q-card-section class="column items-center">
+          <q-avatar icon="priority_high" color="negative" text-color="white" />
+          <span class="q-ml-sm q-mt-md">Вы действительно хотите удалить выбранные семинары и связанные с ними уроки?</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Отмена" color="primary" v-close-popup />
+          <q-btn flat label="Удалить" color="negative" @click="deleteSeminars" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
 import { mapState } from 'vuex';
 import Table from '../components/Table';
+import { generateId } from '../plugins/decoder';
 
 export default {
   name: 'Seminars',
@@ -375,7 +390,8 @@ export default {
           sortable: true,
         },
       ],
-      stepper: false,
+      selectedIds: [],
+      isStepperOpen: false,
       step: 1,
       lessonsNumber: 1,
       tab: 'choose',
@@ -399,6 +415,7 @@ export default {
           name: 'date', label: 'Дата', field: 'date',
         },
       ],
+      isConfirmDeleteModalOpen: false,
     };
   },
   computed: {
@@ -452,19 +469,29 @@ export default {
           ifo, photo_url, preacher_info, invite_link,
         };
 
+      const seminarId = generateId();
+
       await this.$store.dispatch('seminars/createSeminar', {
         seminar: {
-          id: `${title} ${invite_link}`,
+          id: seminarId,
           title,
           invite_link,
         },
         preacher,
         lessons: this.lessons.map((el, i) => ({
           ...el,
-          seminar_id: `${title} ${invite_link}`,
-          id: `${i + 1} ${el.info}`,
+          seminar_id: seminarId,
+          id: generateId(),
         })),
       });
+      this.isStepperOpen = false;
+    },
+    openConfirmDeleteModal(selectedIds) {
+      this.isConfirmDeleteModalOpen = true;
+      this.selectedIds = selectedIds;
+    },
+    deleteSeminars(selectedIds) {
+      this.selectedIds.forEach(id => this.$store.dispatch('seminars/deleteSeminar', id));
     },
     lessonDataInput(value, field, lessonNumber) {
       const index = lessonNumber - 1;

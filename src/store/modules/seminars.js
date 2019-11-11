@@ -1,10 +1,13 @@
 import api from '../../apiSingleton';
+import { replaceSlashs } from '../../plugins/decoder';
 
 const stateObj = {
   loading: false,
   loadingFailed: false,
   creating: false,
   createFailed: false,
+  deleting: false,
+  deleteFailed: false,
   seminars: [],
   seminar: {},
 };
@@ -42,10 +45,22 @@ function createSeminar({ commit }, options) {
     .catch(() => commit(CREATE_SEMINAR_FAIL));
 }
 
+export const DELETE_SEMINAR_START = 'deleteSeminarStart';
+export const DELETE_SEMINAR_SUCCESS = 'deleteSeminarSuccess';
+export const DELETE_SEMINAR_FAIL = 'deleteSeminarFail';
+
+function deleteSeminar({ commit }, id) {
+  commit(DELETE_SEMINAR_START);
+  return api.seminars.deleteSeminar(replaceSlashs(id))
+    .then(data => commit(DELETE_SEMINAR_SUCCESS, data))
+    .catch(() => commit(DELETE_SEMINAR_FAIL));
+}
+
 const actions = {
   fetchCurrentSeminar,
   fetchAllSeminars,
   createSeminar,
+  deleteSeminar,
 };
 
 const mutations = {
@@ -76,6 +91,18 @@ const mutations = {
   createSeminarFail(state) {
     state.creating = false;
     state.createFailed = true;
+  },
+  deleteSeminarStart(state) {
+    state.deleting = true;
+    state.deleteFailed = false;
+  },
+  deleteSeminarSuccess(state, data) {
+    if (data) state.seminars = state.seminars.filter(seminar => seminar.id !== data.id);
+    state.deleting = false;
+  },
+  deleteSeminarFail(state) {
+    state.deleting = false;
+    state.deleteFailed = true;
   },
 };
 
