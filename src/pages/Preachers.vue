@@ -6,7 +6,55 @@
       row_key="id"
       :pagination.sync=pagination
       @delete-items="openConfirmDeleteModal"
+      @show-create-modal="showCreateModal"
     />
+    <q-dialog v-model="isCreateModalOpen">
+      <q-card class="q-pa-md">
+        <q-card-section>
+          <div class="q-mt-md text-center">
+            Заполните данные о проповеднике:
+          </div>
+          <q-input
+            clearable
+            outlined
+            class="input-text-field"
+            clear-icon="close"
+            v-model="name"
+            label="Имя"
+            style="width:300px"
+          />
+          <q-input
+            clearable
+            outlined
+            class="input-text-field"
+            clear-icon="close"
+            v-model="surname"
+            label="Фамилия"
+            style="width:300px"
+          />
+          <q-input
+            clearable
+            outlined
+            class="input-text-field"
+            clear-icon="close"
+            v-model="photoUrl"
+            label="Ссылка на фото"
+            style="width:300px"
+          />
+          <q-input
+            outlined
+            v-model="info"
+            type="textarea"
+            label="Информация о проповеднике"
+            style="width:300px"
+          />
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn color="primary" v-close-popup>Отмена</q-btn>
+          <q-btn color="primary" @click="createPreacher" v-close-popup>Сохранить</q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <ConfirmDeleteModal
       text="Вы действительно хотите удалить выбранных проповедников?"
       @delete-confirmed="deletePreachers"
@@ -46,7 +94,7 @@ export default {
           sortable: true,
         },
         {
-          name: 'preacher_info',
+          name: 'preacherInfo',
           required: true,
           label: 'Описание',
           field: 'info',
@@ -56,6 +104,11 @@ export default {
       ],
       pagination: { rowsPerPage: 20 },
       isConfirmDeleteModalOpen: false,
+      isCreateModalOpen: false,
+      name: '',
+      surname: '',
+      photoUrl: '',
+      info: '',
       selectedIds: [],
     };
   },
@@ -70,8 +123,22 @@ export default {
       this.isConfirmDeleteModalOpen = true;
       this.selectedIds = selectedIds;
     },
+    showCreateModal() {
+      this.isCreateModalOpen = true;
+    },
     deletePreachers() {
       this.selectedIds.forEach(id => this.$store.dispatch('preachers/deletePreacher', id));
+    },
+    async createPreacher() {
+      const {
+        name, surname, photoUrl, info,
+      } = this;
+
+      await this.$store.dispatch('preachers/createPreacher', {
+        ifo: `${name} ${surname}`,
+        info,
+        photo_url: photoUrl,
+      });
     },
   },
   beforeCreate() {
@@ -81,5 +148,7 @@ export default {
 </script>
 
 <style scoped>
-
+  .input-text-field {
+    margin: 10px 0;
+  }
 </style>

@@ -84,7 +84,7 @@ const mutations = {
     state.createFailed = false;
   },
   createPreacherSuccess(state, data) {
-    state.preacher = data || {};
+    if (data) state.preachers.push(data);
     state.creating = false;
   },
   createPreacherFail(state) {

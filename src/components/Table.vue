@@ -29,7 +29,7 @@
         </div>
       </template>
 
-      <template v-slot:body-cell-preacher_info="props">
+      <template v-slot:body-cell-preacherInfo="props">
         <q-td :props="props">
           <p class="limited">
             {{props.value}}

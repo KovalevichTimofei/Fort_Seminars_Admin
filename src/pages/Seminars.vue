@@ -202,7 +202,7 @@
               />
               <q-input
                 outlined
-                v-model="preacher_info"
+                v-model="preacherInfo"
                 type="textarea"
                 label="Информация о проповеднике"
                 style="width:300px"
@@ -309,7 +309,7 @@
                     </div>
                     <q-input
                       outlined
-                      v-model="preacher_info"
+                      v-model="preacherInfo"
                       type="textarea"
                       label="Информация о проповеднике"
                       style="width:100%"
@@ -328,19 +328,6 @@
           </q-stepper-navigation>
         </template>
       </q-stepper>
-    </q-dialog>
-    <q-dialog v-model="isConfirmDeleteModalOpen" persistent>
-      <q-card>
-        <q-card-section class="column items-center">
-          <q-avatar icon="priority_high" color="negative" text-color="white" />
-          <span class="q-ml-sm q-mt-md">Вы действительно хотите удалить выбранные семинары и связанные с ними уроки?</span>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Отмена" color="primary" v-close-popup />
-          <q-btn flat label="Удалить" color="negative" @click="deleteSeminars" v-close-popup />
-        </q-card-actions>
-      </q-card>
     </q-dialog>
     <ConfirmDeleteModal
       text="Вы действительно хотите удалить выбранные семинары и связанные с ними уроки?"
@@ -409,7 +396,7 @@ export default {
       name: '',
       surname: '',
       photo_url: '',
-      preacher_info: '',
+      preacherInfo: '',
       lessons: [{ info: '', date: '' }],
       date: '',
       lessonsColumns: [
@@ -464,17 +451,19 @@ export default {
       const preacher = this.preachersListInfo.find(item => item.id === this.preacher_id.value);
       this.ifo = preacher.ifo;
       this.photo_url = preacher.photo_url;
-      this.preacher_info = preacher.preacher_info;
+      this.preacherInfo = preacher.preacherInfo;
     },
     async saveSeminar() {
       const {
-        ifo, photo_url, preacher_info, title, invite_link,
+        ifo, photo_url, preacherInfo, title, invite_link,
       } = this;
 
       const preacher = this.preacher_id.value
         ? { id: this.preacher_id.value }
         : {
-          ifo, photo_url, preacher_info, invite_link,
+          ifo,
+          photo_url,
+          info: preacherInfo,
         };
 
       const seminarId = generateId();
@@ -527,7 +516,7 @@ export default {
       this.name = '';
       this.surname = '';
       this.photo_url = '';
-      this.preacher_info = '';
+      this.preacherInfo = '';
       this.lessons = [{ info: '', date: '' }];
       this.date = '';
     },
