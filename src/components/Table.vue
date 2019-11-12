@@ -7,6 +7,7 @@
       selection="multiple"
       :selected.sync="selected"
       :selected-rows-label="getSelectedString"
+      :pagination="pagination"
     >
 
       <template v-slot:top>
@@ -65,7 +66,7 @@ export default {
     };
   },
   props: [
-    'columns', 'data', 'row_key',
+    'columns', 'data', 'row_key', 'pagination',
   ],
   methods: {
     getSelectedString() {
@@ -84,7 +85,7 @@ export default {
 
 <style scoped lang="scss">
   .limited {
-    max-width: 200px;
+    max-width: 800px;
     white-space: normal;
     text-align: left;
   }

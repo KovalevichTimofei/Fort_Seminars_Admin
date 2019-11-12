@@ -5,6 +5,8 @@ const stateObj = {
   loadingFailed: false,
   creating: false,
   createFailed: false,
+  deleting: false,
+  deleteFailed: false,
   preacher: {},
   preachers: [],
 };
@@ -42,10 +44,22 @@ function createPreacher({ commit }, options) {
     .catch(() => commit(CREATE_PREACHER_FAIL));
 }
 
+export const DELETE_PREACHER_START = 'deletePreacherStart';
+export const DELETE_PREACHER_SUCCESS = 'deletePreacherSuccess';
+export const DELETE_PREACHER_FAIL = 'deletePreacherFail';
+
+function deletePreacher({ commit }, id) {
+  commit(DELETE_PREACHER_START);
+  return api.preachers.deletePreacher(id)
+    .then(data => commit(DELETE_PREACHER_SUCCESS, data))
+    .catch(() => commit(DELETE_PREACHER_FAIL));
+}
+
 const actions = {
   fetchCurrentPreacher,
   fetchAllPreachers,
   createPreacher,
+  deletePreacher,
 };
 
 const mutations = {
@@ -76,6 +90,18 @@ const mutations = {
   createPreacherFail(state) {
     state.creating = false;
     state.createFailed = true;
+  },
+  deletePreacherStart(state) {
+    state.deleting = true;
+    state.deleteFailed = false;
+  },
+  deletePreacherSuccess(state, data) {
+    if (data) state.preachers = state.preachers.filter(preacher => preacher.id !== data.id);
+    state.deleting = false;
+  },
+  deletePreacherFail(state) {
+    state.deleting = false;
+    state.deleteFailed = true;
   },
 };
 

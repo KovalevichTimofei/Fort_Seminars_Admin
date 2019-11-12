@@ -6,6 +6,7 @@
       row_key="id"
       @show-create-modal="isStepperOpen = true"
       @delete-items="openConfirmDeleteModal"
+      :pagination="{rowsPerPage: 20}"
     />
     <q-dialog v-model="isStepperOpen">
       <q-stepper
@@ -341,6 +342,11 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <ConfirmDeleteModal
+      text="Вы действительно хотите удалить выбранные семинары и связанные с ними уроки?"
+      @delete-confirmed="deleteSeminars(selectedIds)"
+      v-model="isConfirmDeleteModalOpen"
+    />
   </q-page>
 </template>
 
@@ -348,11 +354,13 @@
 import { mapState } from 'vuex';
 import Table from '../components/Table';
 import { generateId } from '../plugins/decoder';
+import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 
 export default {
   name: 'Seminars',
   components: {
     Table,
+    ConfirmDeleteModal,
   },
   data() {
     return {
@@ -485,12 +493,13 @@ export default {
         })),
       });
       this.isStepperOpen = false;
+      this.clearInputs();
     },
     openConfirmDeleteModal(selectedIds) {
       this.isConfirmDeleteModalOpen = true;
       this.selectedIds = selectedIds;
     },
-    deleteSeminars(selectedIds) {
+    deleteSeminars() {
       this.selectedIds.forEach(id => this.$store.dispatch('seminars/deleteSeminar', id));
     },
     lessonDataInput(value, field, lessonNumber) {
@@ -507,6 +516,20 @@ export default {
     addLesson() {
       this.lessonsNumber += 1;
       this.lessons.push({ info: '', date: '' });
+    },
+    clearInputs() {
+      this.step = 1;
+      this.lessonsNumber = 1;
+      this.tab = 'choose';
+      this.title = '';
+      this.invite_link = '';
+      this.preacher_id = '';
+      this.name = '';
+      this.surname = '';
+      this.photo_url = '';
+      this.preacher_info = '';
+      this.lessons = [{ info: '', date: '' }];
+      this.date = '';
     },
   },
   beforeCreate() {
