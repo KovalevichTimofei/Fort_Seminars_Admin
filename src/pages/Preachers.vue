@@ -6,9 +6,9 @@
       row_key="id"
       :pagination.sync=pagination
       :selectedIds.sync="selectedIds"
-      @delete-items="openConfirmDeleteModal"
       @show-create-modal="showCreateModal"
       @show-edit-modal="showEditModal"
+      @delete-items="openConfirmDeleteModal"
     />
     <q-dialog v-model="isCreateModalOpen">
       <q-card class="q-pa-md">

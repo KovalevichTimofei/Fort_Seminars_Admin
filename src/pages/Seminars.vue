@@ -5,6 +5,7 @@
       :data="seminarsList"
       row_key="id"
       @show-create-modal="isStepperOpen = true"
+      @show-edit-modal="showEditModal"
       @delete-items="openConfirmDeleteModal"
       :pagination="{rowsPerPage: 20}"
       :selectedIds.sync="selectedIds"
@@ -143,6 +144,7 @@
           <q-tabs
             v-model="tab"
             class="text-teal"
+            @input="tabChanged"
           >
             <q-tab name="choose" icon="how_to_reg" label="Выбрать" />
             <q-tab name="create" icon="add" label="Создать" />
@@ -388,6 +390,7 @@ export default {
       ],
       selectedIds: [],
       isStepperOpen: false,
+      editingMode: false,
       step: 1,
       lessonsNumber: 1,
       tab: 'choose',
@@ -423,7 +426,9 @@ export default {
         label: preacher.ifo,
         value: preacher.id,
       })),
-      preacher: state => state.preacher,
+      preacher: state => state.preachers.preacher,
+      lessonsList: state => state.lessons.lessons,
+      seminar: state => state.seminars.seminar,
     }),
     ifo: {
       get() {
@@ -467,23 +472,75 @@ export default {
           info: preacherInfo,
         };
 
-      const seminarId = generateId();
+      if (this.editingMode) {
+        await this.$store.dispatch('seminars/editSeminar', {
+          seminar: {
+            ...this.seminar,
+            title,
+            invite_link,
+          },
+          preacher,
+          lessons: this.lessons.map((el) => {
+            const id = el.id || generateId();
 
-      await this.$store.dispatch('seminars/createSeminar', {
-        seminar: {
-          id: seminarId,
-          title,
-          invite_link,
-        },
-        preacher,
-        lessons: this.lessons.map(el => ({
-          ...el,
-          seminar_id: seminarId,
-          id: generateId(),
-        })),
-      });
+            return {
+              ...el,
+              seminar_id: this.seminar.id,
+              id,
+            };
+          }),
+        });
+      } else {
+        const seminarId = generateId();
+
+        await this.$store.dispatch('seminars/createSeminar', {
+          seminar: {
+            id: seminarId,
+            title,
+            invite_link,
+          },
+          preacher,
+          lessons: this.lessons.map(el => ({
+            ...el,
+            seminar_id: seminarId,
+            id: generateId(),
+          })),
+        });
+      }
+
       this.isStepperOpen = false;
       this.clearInputs();
+    },
+    async showEditModal(id) {
+      await this.$store.dispatch('seminars/fetchSeminarById', id);
+      await this.$store.dispatch('preachers/fetchCurrentPreacher', this.seminar.preacher_id);
+      await this.$store.dispatch('lessons/fetchLessonsBySeminar', id);
+
+      this.editingMode = true;
+
+      this.step = 1;
+      this.tab = 'choose';
+
+      this.title = this.seminar.title;
+      this.invite_link = this.seminar.invite_link;
+
+      this.preacher_id = this.preacher.preacher_id;
+
+      this.lessonsNumber = this.lessonsList.length;
+      this.lessons = this.lessonsList;
+      this.lessonsColumns = [
+        {
+          name: 'number', label: 'Номер', field: 'number',
+        },
+        {
+          name: 'info', label: 'Название', field: 'info',
+        },
+        {
+          name: 'date', label: 'Дата', field: 'date',
+        },
+      ];
+
+      this.isStepperOpen = true;
     },
     openConfirmDeleteModal() {
       this.isConfirmDeleteModalOpen = true;
@@ -506,6 +563,11 @@ export default {
     addLesson() {
       this.lessonsNumber += 1;
       this.lessons.push({ info: '', date: '' });
+    },
+    tabChanged(value) {
+      if (value === 'create') {
+        this.preacher_id = '';
+      }
     },
     clearInputs() {
       this.step = 1;

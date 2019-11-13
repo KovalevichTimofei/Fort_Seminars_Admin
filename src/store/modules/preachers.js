@@ -82,6 +82,7 @@ const mutations = {
     state.loadingFailed = false;
   },
   fetchPreacherSuccess(state, data) {
+    console.log(data);
     state.preacher = data || {};
     state.loading = false;
   },

@@ -19,6 +19,13 @@ function fetchLessonsByMonth({ commit }, monthNumber) {
     .catch(() => commit(FETCH_LESSONS_FAIL));
 }
 
+function fetchLessonsBySeminar({ commit }, seminarId) {
+  commit(FETCH_LESSONS_START);
+  return api.lessons.getLessonsBySeminar(seminarId)
+    .then(data => commit(FETCH_LESSONS_SUCCESS, data))
+    .catch(() => commit(FETCH_LESSONS_FAIL));
+}
+
 export const CREATE_LESSON_START = 'createLessonStart';
 export const CREATE_LESSON_SUCCESS = 'createLessonSuccess';
 export const CREATE_LESSON_FAIL = 'createLessonFail';
@@ -36,6 +43,7 @@ function reWriteLessons({ commit }) {
 
 const actions = {
   fetchLessonsByMonth,
+  fetchLessonsBySeminar,
   reWriteLessons,
   createLesson,
 };

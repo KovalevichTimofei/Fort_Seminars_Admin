@@ -9,6 +9,10 @@ export default class LessonsApi extends Base {
     return this.apiClient.get(`lessons/month/${monthNumber}`);
   }
 
+  getLessonsBySeminar(seminarId) {
+    return this.apiClient.get(`lessons/seminar/${seminarId}`);
+  }
+
   getLesson(id) {
     return this.apiClient.get(`lessons/${id}`);
   }

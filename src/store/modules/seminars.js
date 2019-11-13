@@ -4,6 +4,8 @@ import { replaceSlashs } from '../../plugins/decoder';
 const stateObj = {
   loading: false,
   loadingFailed: false,
+  editing: false,
+  editFailed: false,
   creating: false,
   createFailed: false,
   deleting: false,
@@ -19,6 +21,13 @@ export const FETCH_SEMINAR_FAIL = 'fetchSeminarFail';
 function fetchCurrentSeminar({ commit }) {
   commit(FETCH_SEMINAR_START);
   return api.seminars.getCurrentSeminar()
+    .then(data => commit(FETCH_SEMINAR_SUCCESS, data))
+    .catch(() => commit(FETCH_SEMINAR_FAIL));
+}
+
+function fetchSeminarById({ commit }, id) {
+  commit(FETCH_SEMINAR_START);
+  return api.seminars.getSeminar(id)
     .then(data => commit(FETCH_SEMINAR_SUCCESS, data))
     .catch(() => commit(FETCH_SEMINAR_FAIL));
 }
@@ -45,6 +54,17 @@ function createSeminar({ commit }, options) {
     .catch(() => commit(CREATE_SEMINAR_FAIL));
 }
 
+export const EDIT_SEMINAR_START = 'editSeminarStart';
+export const EDIT_SEMINAR_SUCCESS = 'editSeminarSuccess';
+export const EDIT_SEMINAR_FAIL = 'editSeminarFail';
+
+function editSeminar({ commit }, options) {
+  commit(EDIT_SEMINAR_START);
+  return api.seminars.editSeminar(options.seminar.id, options)
+    .then(data => commit(EDIT_SEMINAR_SUCCESS, data))
+    .catch(() => commit(EDIT_SEMINAR_FAIL));
+}
+
 export const DELETE_SEMINAR_START = 'deleteSeminarStart';
 export const DELETE_SEMINAR_SUCCESS = 'deleteSeminarSuccess';
 export const DELETE_SEMINAR_FAIL = 'deleteSeminarFail';
@@ -57,9 +77,11 @@ function deleteSeminar({ commit }, id) {
 }
 
 const actions = {
+  fetchSeminarById,
   fetchCurrentSeminar,
   fetchAllSeminars,
   createSeminar,
+  editSeminar,
   deleteSeminar,
 };
 
@@ -91,6 +113,21 @@ const mutations = {
   createSeminarFail(state) {
     state.creating = false;
     state.createFailed = true;
+  },
+  editSeminarStart(state) {
+    state.editing = true;
+    state.editFailed = false;
+  },
+  editSeminarSuccess(state, data) {
+    if (data) {
+      const editedElIndex = state.seminars.findIndex(el => el.id === data.id);
+      state.seminars.splice(editedElIndex, 1, data);
+    }
+    state.editing = false;
+  },
+  editSeminarFail(state) {
+    state.editing = false;
+    state.editFailed = true;
   },
   deleteSeminarStart(state) {
     state.deleting = true;
