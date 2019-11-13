@@ -5,23 +5,23 @@
       :columns="columns"
       :row-key="row_key"
       selection="multiple"
-      :selected.sync="selected"
+      :selected.sync="selectedArr"
       :selected-rows-label="getSelectedString"
       :pagination="pagination"
     >
 
       <template v-slot:top>
-        <div class="top-not-selected" v-show="selected.length === 0">
+        <div class="top-not-selected" v-show="selectedArr.length === 0">
           <q-btn color="primary" @click="emitCreate">Создать</q-btn>
         </div>
-        <div class="top-when-selected" v-show="selected.length === 1">
+        <div class="top-when-selected" v-show="selectedArr.length === 1">
           <div>{{getSelectedString()}}</div>
           <div class="btns">
-            <q-btn color="secondary">Редактировать</q-btn>
+            <q-btn color="secondary" @click="emitEdit">Редактировать</q-btn>
             <q-btn color="negative" @click="emitDelete">Удалить</q-btn>
           </div>
         </div>
-        <div class="top-when-selected" v-show="selected.length > 1">
+        <div class="top-when-selected" v-show="selectedArr.length > 1">
           <div>{{getSelectedString()}}</div>
           <div class="btns">
             <q-btn color="negative" @click="emitDelete">Удалить</q-btn>
@@ -60,24 +60,31 @@
 <script>
 export default {
   name: 'Table',
-  data() {
-    return {
-      selected: [],
-    };
-  },
   props: [
-    'columns', 'data', 'row_key', 'pagination',
+    'columns', 'data', 'row_key', 'pagination', 'selectedIds',
   ],
+  computed: {
+    selectedArr: {
+      get() {
+        return this.selectedIds;
+      },
+      set(selectedArr) {
+        this.$emit('update:selectedIds', selectedArr);
+      },
+    },
+  },
   methods: {
     getSelectedString() {
-      return this.selected.length === 0 ? '' : `Выбрано ${this.selected.length} из ${this.data.length}`;
+      return this.selectedArr.length === 0 ? '' : `Выбрано ${this.selectedArr.length} из ${this.data.length}`;
     },
     emitCreate() {
       this.$emit('show-create-modal');
     },
+    emitEdit() {
+      this.$emit('show-edit-modal', this.selectedArr[0].id);
+    },
     emitDelete() {
-      this.$emit('delete-items', this.selected.map(el => el.id));
-      this.selected = [];
+      this.$emit('delete-items', this.selectedArr.map(el => el.id));
     },
   },
 };

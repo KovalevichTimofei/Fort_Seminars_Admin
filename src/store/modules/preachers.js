@@ -5,6 +5,8 @@ const stateObj = {
   loadingFailed: false,
   creating: false,
   createFailed: false,
+  editing: false,
+  editFailed: false,
   deleting: false,
   deleteFailed: false,
   preacher: {},
@@ -44,6 +46,17 @@ function createPreacher({ commit }, options) {
     .catch(() => commit(CREATE_PREACHER_FAIL));
 }
 
+export const EDIT_PREACHER_START = 'editPreacherStart';
+export const EDIT_PREACHER_SUCCESS = 'editPreacherSuccess';
+export const EDIT_PREACHER_FAIL = 'editPreacherFail';
+
+function editPreacher({ commit }, options) {
+  commit(EDIT_PREACHER_START);
+  return api.preachers.editPreacher(options.id, options)
+    .then(data => commit(EDIT_PREACHER_SUCCESS, data))
+    .catch(() => commit(EDIT_PREACHER_FAIL));
+}
+
 export const DELETE_PREACHER_START = 'deletePreacherStart';
 export const DELETE_PREACHER_SUCCESS = 'deletePreacherSuccess';
 export const DELETE_PREACHER_FAIL = 'deletePreacherFail';
@@ -60,6 +73,7 @@ const actions = {
   fetchAllPreachers,
   createPreacher,
   deletePreacher,
+  editPreacher,
 };
 
 const mutations = {
@@ -90,6 +104,21 @@ const mutations = {
   createPreacherFail(state) {
     state.creating = false;
     state.createFailed = true;
+  },
+  editPreacherStart(state) {
+    state.editing = true;
+    state.editFailed = false;
+  },
+  editPreacherSuccess(state, data) {
+    if (data) {
+      const editedElIndex = state.preachers.findIndex(el => el.id === data.id);
+      state.preachers.splice(editedElIndex, 1, data);
+    }
+    state.editing = false;
+  },
+  editPreacherFail(state) {
+    state.editing = false;
+    state.editFailed = true;
   },
   deletePreacherStart(state) {
     state.deleting = true;

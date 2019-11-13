@@ -7,6 +7,7 @@
       @show-create-modal="isStepperOpen = true"
       @delete-items="openConfirmDeleteModal"
       :pagination="{rowsPerPage: 20}"
+      :selectedIds.sync="selectedIds"
     />
     <q-dialog v-model="isStepperOpen">
       <q-stepper
@@ -475,7 +476,7 @@ export default {
           invite_link,
         },
         preacher,
-        lessons: this.lessons.map((el, i) => ({
+        lessons: this.lessons.map(el => ({
           ...el,
           seminar_id: seminarId,
           id: generateId(),
@@ -484,12 +485,12 @@ export default {
       this.isStepperOpen = false;
       this.clearInputs();
     },
-    openConfirmDeleteModal(selectedIds) {
+    openConfirmDeleteModal() {
       this.isConfirmDeleteModalOpen = true;
-      this.selectedIds = selectedIds;
     },
     deleteSeminars() {
       this.selectedIds.forEach(id => this.$store.dispatch('seminars/deleteSeminar', id));
+      this.selectedIds = [];
     },
     lessonDataInput(value, field, lessonNumber) {
       const index = lessonNumber - 1;
@@ -519,6 +520,7 @@ export default {
       this.preacherInfo = '';
       this.lessons = [{ info: '', date: '' }];
       this.date = '';
+      this.selectedIds = [];
     },
   },
   beforeCreate() {

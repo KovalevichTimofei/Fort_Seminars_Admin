@@ -5,8 +5,10 @@
       :data="preachersList"
       row_key="id"
       :pagination.sync=pagination
+      :selectedIds.sync="selectedIds"
       @delete-items="openConfirmDeleteModal"
       @show-create-modal="showCreateModal"
+      @show-edit-modal="showEditModal"
     />
     <q-dialog v-model="isCreateModalOpen">
       <q-card class="q-pa-md">
@@ -51,7 +53,7 @@
         </q-card-section>
         <q-card-actions align="right">
           <q-btn color="primary" v-close-popup>Отмена</q-btn>
-          <q-btn color="primary" @click="createPreacher" v-close-popup>Сохранить</q-btn>
+          <q-btn color="primary" @click="savePreacher" v-close-popup>Сохранить</q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -105,6 +107,7 @@ export default {
       pagination: { rowsPerPage: 20 },
       isConfirmDeleteModalOpen: false,
       isCreateModalOpen: false,
+      editingMode: false,
       name: '',
       surname: '',
       photoUrl: '',
@@ -115,30 +118,70 @@ export default {
   computed: {
     ...mapState({
       preachersList: state => state.preachers.preachers,
+      preacher: state => state.preachers.preacher,
       loading: state => state.preachers.loading,
     }),
+    ifo: {
+      get() {
+        return `${this.name} ${this.surname}`;
+      },
+      set(ifo) {
+        const names = ifo.split(' ');
+        this.name = names[0];
+        this.surname = names[names.length - 1];
+      },
+    },
   },
   methods: {
-    openConfirmDeleteModal(selectedIds) {
+    openConfirmDeleteModal() {
       this.isConfirmDeleteModalOpen = true;
-      this.selectedIds = selectedIds;
     },
     showCreateModal() {
       this.isCreateModalOpen = true;
     },
+    async showEditModal(id) {
+      await this.$store.dispatch('preachers/fetchCurrentPreacher', id);
+
+      this.ifo = this.preacher.ifo;
+      this.info = this.preacher.info;
+      this.photoUrl = this.preacher.photo_url;
+      this.editingMode = true;
+
+      this.isCreateModalOpen = true;
+    },
     deletePreachers() {
       this.selectedIds.forEach(id => this.$store.dispatch('preachers/deletePreacher', id));
+      this.selectedIds = [];
     },
-    async createPreacher() {
+    async savePreacher() {
       const {
-        name, surname, photoUrl, info,
+        ifo, photoUrl, info,
       } = this;
 
-      await this.$store.dispatch('preachers/createPreacher', {
-        ifo: `${name} ${surname}`,
-        info,
-        photo_url: photoUrl,
-      });
+      if (this.editingMode) {
+        await this.$store.dispatch('preachers/editPreacher', {
+          id: this.preacher.id,
+          ifo,
+          info,
+          photo_url: photoUrl,
+        });
+      } else {
+        await this.$store.dispatch('preachers/createPreacher', {
+          ifo,
+          info,
+          photo_url: photoUrl,
+        });
+      }
+      this.clearInputs();
+    },
+    clearInputs() {
+      this.editingMode = false;
+      this.name = '';
+      this.surname = '';
+      this.photoUrl = '';
+      this.info = '';
+      this.preacher = {};
+      this.selectedIds = [];
     },
   },
   beforeCreate() {
