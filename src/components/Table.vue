@@ -49,7 +49,7 @@
       <template v-slot:body-cell-avatar="props">
         <q-td>
           <q-avatar size="80px">
-            <img :src="props.value">
+            <img alt="портрет" :src="props.value">
           </q-avatar>
         </q-td>
       </template>

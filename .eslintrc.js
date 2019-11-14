@@ -52,9 +52,8 @@ module.exports = {
     'array-callback-return': 'off',
     'arrow-body-style': 'warn',
     'max-len': 'warn',
-    'camelcase': 'warn',
     'no-plusplus': 'off',
-    'no-bitwise': 'warn',
+    'linebreak-style': ["error", "windows"],
     // allow console.log during development only
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     // allow debugger during development only
