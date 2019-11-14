@@ -4,7 +4,7 @@ import { deepCopy } from '../util';
 
 export default function createLogger({
   collapsed = true,
-  filter = (mutation, stateBefore, stateAfter) => true,
+  filter = (/* mutation, stateBefore, stateAfter */) => true,
   transformer = state => state,
   mutationTransformer = mut => mut,
   logger = console,

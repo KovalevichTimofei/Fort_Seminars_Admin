@@ -1,5 +1,4 @@
 import api from '../../apiSingleton';
-import { replaceSlashs } from '../../plugins/decoder';
 
 const stateObj = {
   loading: false,
@@ -71,7 +70,7 @@ export const DELETE_SEMINAR_FAIL = 'deleteSeminarFail';
 
 function deleteSeminar({ commit }, id) {
   commit(DELETE_SEMINAR_START);
-  return api.seminars.deleteSeminar(replaceSlashs(id))
+  return api.seminars.deleteSeminar(id)
     .then(data => commit(DELETE_SEMINAR_SUCCESS, data))
     .catch(() => commit(DELETE_SEMINAR_FAIL));
 }

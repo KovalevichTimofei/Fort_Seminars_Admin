@@ -66,7 +66,7 @@ export function assert(condition, msg) {
 }
 
 export function partial(fn, arg) {
-  return function () {
+  return function returnedFunc() {
     return fn(arg);
   };
 }

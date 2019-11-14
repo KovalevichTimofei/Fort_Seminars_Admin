@@ -126,9 +126,7 @@ export default {
         return `${this.name} ${this.surname}`;
       },
       set(ifo) {
-        const names = ifo.split(' ');
-        this.name = names[0];
-        this.surname = names[names.length - 1];
+        [this.name, this.surname] = ifo.split(' ');
       },
     },
   },

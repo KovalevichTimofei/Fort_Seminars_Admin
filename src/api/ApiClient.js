@@ -1,5 +1,3 @@
-import store from '../store';
-
 export default class ApiClient {
   constructor({ prefix = 'api' } = {}) {
     this.prefix = prefix;
@@ -53,7 +51,7 @@ export default class ApiClient {
     let status;
     let init;
 
-    const token = localStorage.getItem('auth_token');
+    // const token = localStorage.getItem('auth_token');
 
     if (contentType === 'file' || contentType === 'logout' || method === 'get') {
       init = {
@@ -82,7 +80,8 @@ export default class ApiClient {
     console.log(`${this.prefix}/${url}`, init);
 
     return fetch(`${this.prefix}/${url}`, init).then((res) => {
-      status = res.status;
+      ({ status } = res);
+
       if (status === 204) {
         return status;
       }

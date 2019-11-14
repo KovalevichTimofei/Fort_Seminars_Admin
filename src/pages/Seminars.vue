@@ -55,7 +55,7 @@
                 outlined
                 class="input-text-field"
                 clear-icon="close"
-                v-model="invite_link"
+                v-model="inviteLink"
                 label="Видеоприглашение"
                 style="width:300px"
               />
@@ -162,10 +162,10 @@
               >
                 <q-select
                   outlined
-                  v-model="preacher_id"
+                  v-model="preacherId"
                   :options="preachersList"
                   label="Выбор проповедника"
-                  hint="Если требуемого проповедника нет в списке, то перейдите во вкладку «Создать»"
+                  :hint="createPreacherHint"
                   style="width:300px;"
                   behavior="menu"
                   @input="readPreacherInfo"
@@ -199,7 +199,7 @@
                 outlined
                 class="input-text-field"
                 clear-icon="close"
-                v-model="photo_url"
+                v-model="photoUrl"
                 label="Ссылка на фото"
                 style="width:300px"
               />
@@ -248,7 +248,7 @@
                       Видеоприглашение:
                     </div>
                     <q-video
-                      :src="invite_link"
+                      :src="inviteLink"
                     />
                   </q-card-section>
                 </q-card>
@@ -299,7 +299,7 @@
                       outlined
                       disabled
                       label="Ссылка на фото"
-                      v-model="photo_url"
+                      v-model="photoUrl"
                       style="width:100%"
                       class="q-my-md"
                     >
@@ -307,7 +307,7 @@
                     <div class="row flex-center justify-around">
                       <div>Фото по введённой <br/> ссылке:</div>
                       <q-avatar>
-                        <img :src="photo_url">
+                        <img :src="photoUrl">
                       </q-avatar>
                     </div>
                     <q-input
@@ -326,8 +326,18 @@
         </q-step>
         <template v-slot:navigation>
           <q-stepper-navigation>
-            <q-btn @click="step === 4 ? saveSeminar() : $refs.createSeminarStepper.next()" color="primary" :label="step === 4 ? 'Завершить' : 'Далее'" />
-            <q-btn v-if="step > 1" flat color="primary" @click="$refs.createSeminarStepper.previous()" label="Назад" class="q-ml-sm" />
+            <q-btn
+              @click="step === 4 ? saveSeminar() : $refs.createSeminarStepper.next()"
+              color="primary"
+              :label="step === 4 ? 'Завершить' : 'Далее'"
+            />
+            <q-btn
+              v-if="step > 1"
+              flat color="primary"
+              @click="$refs.createSeminarStepper.previous()"
+              label="Назад"
+              class="q-ml-sm"
+            />
           </q-stepper-navigation>
         </template>
       </q-stepper>
@@ -392,14 +402,15 @@ export default {
       isStepperOpen: false,
       editingMode: false,
       step: 1,
+      createPreacherHint: 'Если требуемого проповедника нет в списке, то перейдите во вкладку «Создать»',
       lessonsNumber: 1,
       tab: 'choose',
       title: '',
-      invite_link: '',
-      preacher_id: '',
+      inviteLink: '',
+      preacherId: {},
       name: '',
       surname: '',
-      photo_url: '',
+      photoUrl: '',
       preacherInfo: '',
       lessons: [{ info: '', date: '' }],
       date: '',
@@ -435,9 +446,7 @@ export default {
         return `${this.name} ${this.surname}`;
       },
       set(ifo) {
-        const names = ifo.split(' ');
-        this.name = names[0];
-        this.surname = names[names.length - 1];
+        [this.name, this.surname] = ifo.split(' ');
       },
     },
     lessonsData() {
@@ -454,21 +463,21 @@ export default {
   },
   methods: {
     readPreacherInfo() {
-      const preacher = this.preachersListInfo.find(item => item.id === this.preacher_id.value);
+      const preacher = this.preachersListInfo.find(item => item.id === this.preacherId.value);
       this.ifo = preacher.ifo;
-      this.photo_url = preacher.photo_url;
+      this.photoUrl = preacher.photo_url;
       this.preacherInfo = preacher.preacherInfo;
     },
     async saveSeminar() {
       const {
-        ifo, photo_url, preacherInfo, title, invite_link,
+        ifo, photoUrl, preacherInfo, title, inviteLink,
       } = this;
 
-      const preacher = this.preacher_id.value
-        ? { id: this.preacher_id.value }
+      const preacher = this.preacherId.value
+        ? { id: this.preacherId.value }
         : {
           ifo,
-          photo_url,
+          photoUrl,
           info: preacherInfo,
         };
 
@@ -477,7 +486,7 @@ export default {
           seminar: {
             ...this.seminar,
             title,
-            invite_link,
+            invite_link: inviteLink,
           },
           preacher,
           lessons: this.lessons.map((el) => {
@@ -497,7 +506,7 @@ export default {
           seminar: {
             id: seminarId,
             title,
-            invite_link,
+            invite_link: inviteLink,
           },
           preacher,
           lessons: this.lessons.map(el => ({
@@ -522,9 +531,10 @@ export default {
       this.tab = 'choose';
 
       this.title = this.seminar.title;
-      this.invite_link = this.seminar.invite_link;
+      this.inviteLink = this.seminar.invite_link;
 
-      this.preacher_id = this.preacher.preacher_id;
+      this.preacherId.value = this.preacher.id;
+      this.preacherId.label = this.preacher.ifo;
 
       this.lessonsNumber = this.lessonsList.length;
       this.lessons = this.lessonsList;
@@ -566,7 +576,7 @@ export default {
     },
     tabChanged(value) {
       if (value === 'create') {
-        this.preacher_id = '';
+        this.preacherId = '';
       }
     },
     clearInputs() {
@@ -574,11 +584,11 @@ export default {
       this.lessonsNumber = 1;
       this.tab = 'choose';
       this.title = '';
-      this.invite_link = '';
-      this.preacher_id = '';
+      this.inviteLink = '';
+      this.preacherId = '';
       this.name = '';
       this.surname = '';
-      this.photo_url = '';
+      this.photoUrl = '';
       this.preacherInfo = '';
       this.lessons = [{ info: '', date: '' }];
       this.date = '';

@@ -18,7 +18,6 @@ export default class SeminarsApi extends Base {
   }
 
   editSeminar(id, editedSeminar) {
-    console.log('edit seminar');
     return this.apiClient.put(`seminars/${id}`, editedSeminar);
   }
 
