@@ -1,21 +1,21 @@
 import api from '../../apiSingleton';
 
 const stateObj = {
-  loading: false,
-  loadingFailed: false,
-  editing: false,
-  editFailed: false,
-  creating: false,
-  createFailed: false,
-  deleting: false,
-  deleteFailed: false,
   seminars: [],
   seminar: {},
+  loading: false,
+  loadingFailed: false,
+  creating: false,
+  createFailed: false,
+  editing: false,
+  editFailed: false,
+  deleting: false,
+  deleteFailed: false,
 };
 
-export const FETCH_SEMINAR_START = 'fetchSeminarStart';
+export const FETCH_SEMINAR_START = 'fetchSeminarsStart';
 export const FETCH_SEMINAR_SUCCESS = 'fetchSeminarSuccess';
-export const FETCH_SEMINAR_FAIL = 'fetchSeminarFail';
+export const FETCH_SEMINAR_FAIL = 'fetchSeminarsFail';
 
 function fetchCurrentSeminar({ commit }) {
   commit(FETCH_SEMINAR_START);
@@ -85,7 +85,7 @@ const actions = {
 };
 
 const mutations = {
-  fetchSeminarStart(state) {
+  fetchSeminarsStart(state) {
     state.loading = true;
     state.loadingFailed = false;
   },
@@ -97,7 +97,7 @@ const mutations = {
     state.seminars = data || [];
     state.loading = false;
   },
-  fetchSeminarFail(state) {
+  fetchSeminarsFail(state) {
     state.loading = false;
     state.loadingFailed = true;
   },

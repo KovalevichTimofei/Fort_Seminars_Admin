@@ -148,7 +148,7 @@ export default {
       this.isCreateModalOpen = true;
     },
     deletePreachers() {
-      this.selectedIds.forEach(id => this.$store.dispatch('preachers/deletePreacher', id));
+      this.selectedIds.forEach(item => this.$store.dispatch('preachers/deletePreacher', item.id));
       this.selectedIds = [];
     },
     async savePreacher() {

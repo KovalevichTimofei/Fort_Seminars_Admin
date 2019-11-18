@@ -1,10 +1,10 @@
 import api from '../../apiSingleton';
 
 const stateObj = {
+  listeners: [],
   loading: false,
   loadingFailed: false,
   success: false,
-  listeners: [],
 };
 
 export const REGISTER_USER_START = 'registerUserStart';

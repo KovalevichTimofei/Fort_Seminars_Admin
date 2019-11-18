@@ -1,6 +1,8 @@
 import api from '../../apiSingleton';
 
 const stateObj = {
+  preacher: {},
+  preachers: [],
   loading: false,
   loadingFailed: false,
   creating: false,
@@ -9,8 +11,6 @@ const stateObj = {
   editFailed: false,
   deleting: false,
   deleteFailed: false,
-  preacher: {},
-  preachers: [],
 };
 
 export const FETCH_PREACHER_START = 'fetchPreacherStart';

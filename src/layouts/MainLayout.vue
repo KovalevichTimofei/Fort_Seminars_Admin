@@ -54,6 +54,15 @@
             <q-item-label caption>Информация о братьях</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item clickable tag="a" router-link to="/lessons">
+          <q-item-section avatar>
+            <q-icon name="library_books" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Уроки</q-item-label>
+            <q-item-label caption>Полная информация по урокам</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 

@@ -1,13 +1,15 @@
 <template>
   <div class="q-pa-md">
     <q-table
+      virtual-scroll
       :data="data"
       :columns="columns"
       :row-key="row_key"
       selection="multiple"
       :selected.sync="selectedArr"
       :selected-rows-label="getSelectedString"
-      :pagination="pagination"
+      :pagination.sync="paginationObj"
+      table-style="max-height: 600px"
     >
 
       <template v-slot:top>
@@ -70,6 +72,14 @@ export default {
       },
       set(selectedArr) {
         this.$emit('update:selectedIds', selectedArr);
+      },
+    },
+    paginationObj: {
+      get() {
+        return this.pagination;
+      },
+      set(obj) {
+        this.$emit('update:pagination', obj);
       },
     },
   },
