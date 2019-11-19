@@ -156,7 +156,6 @@ export default {
     },
     async showEditModal(id) {
       const lesson = this.lessonsList.find(item => item.id === id);
-      console.log(lesson);
 
       this.id = lesson.id;
       this.info = lesson.info;
