@@ -3,7 +3,7 @@ import config from '../config';
 
 import SeminarApi from './Seminars';
 import PreachersApi from './Preachers';
-import UsersApi from './Users';
+import ListenersApi from './Listeners';
 import LessonsApi from './Lessons';
 
 export default function () {
@@ -17,7 +17,7 @@ export default function () {
     apiClient: api,
     seminars: new SeminarApi({ apiClient: api }),
     preachers: new PreachersApi({ apiClient: api }),
-    users: new UsersApi({ apiClient: api }),
+    listeners: new ListenersApi({ apiClient: api }),
     lessons: new LessonsApi({ apiClient: api }),
   };
 }

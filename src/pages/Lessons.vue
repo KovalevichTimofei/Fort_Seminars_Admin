@@ -4,7 +4,7 @@
       :columns="columns"
       :data="lessonsList"
       row_key="id"
-      :pagination.sync=pagination
+      :pagination.sync="pagination"
       :selectedIds.sync="selectedIds"
       @show-create-modal="showCreateModal"
       @show-edit-modal="showEditModal"
