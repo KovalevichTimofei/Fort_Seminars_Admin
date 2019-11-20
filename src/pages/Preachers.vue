@@ -69,6 +69,7 @@
 import { mapState } from 'vuex';
 import Table from '../components/Table';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
+import notificationsOptions from '../mixins/notificationsOptions';
 
 export default {
   name: 'Preachers',
@@ -76,6 +77,7 @@ export default {
     Table,
     ConfirmDeleteModal,
   },
+  mixins: [notificationsOptions],
   data() {
     return {
       columns: [
@@ -120,6 +122,7 @@ export default {
       preachersList: state => state.preachers.preachers,
       preacher: state => state.preachers.preacher,
       loading: state => state.preachers.loading,
+      deleteSuccess: state => state.preachers.deleteSuccess,
     }),
     ifo: {
       get() {
@@ -148,7 +151,20 @@ export default {
       this.isCreateModalOpen = true;
     },
     deletePreachers() {
-      this.selectedIds.forEach(item => this.$store.dispatch('preachers/deletePreacher', item.id));
+      const promises = this.selectedIds.map(item => this.$store.dispatch('preachers/deletePreacher', item.id));
+
+      const pending = this.showNotif('pendingMessage', 'Удаление...');
+
+      Promise.all(promises)
+        .then(() => {
+          pending();
+          this.showNotif('successMessage', 'Удалено успешно!');
+        })
+        .catch(() => {
+          pending();
+          this.showNotif('failMessage', 'Не удаётся удалить!');
+        });
+
       this.selectedIds = [];
     },
     async savePreacher() {
@@ -156,20 +172,39 @@ export default {
         ifo, photoUrl, info,
       } = this;
 
+      const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
+
       if (this.editingMode) {
-        await this.$store.dispatch('preachers/editPreacher', {
+        this.$store.dispatch('preachers/editPreacher', {
           id: this.preacher.id,
           ifo,
           info,
           photo_url: photoUrl,
-        });
+        })
+          .then(() => {
+            dismiss();
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            dismiss();
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          });
       } else {
-        await this.$store.dispatch('preachers/createPreacher', {
+        this.$store.dispatch('preachers/createPreacher', {
           ifo,
           info,
           photo_url: photoUrl,
-        });
+        })
+          .then(() => {
+            dismiss();
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            dismiss();
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          });
       }
+
       this.clearInputs();
     },
     clearInputs() {
@@ -180,6 +215,13 @@ export default {
       this.info = '';
       this.preacher = {};
       this.selectedIds = [];
+    },
+    showNotif(type, message) {
+      const options = this[type](message);
+
+      return this.$q.notify({
+        ...options,
+      });
     },
   },
   beforeCreate() {

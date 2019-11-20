@@ -82,7 +82,6 @@ const mutations = {
     state.loadingFailed = false;
   },
   fetchPreacherSuccess(state, data) {
-    console.log(data);
     state.preacher = data || {};
     state.loading = false;
   },
@@ -124,14 +123,17 @@ const mutations = {
   deletePreacherStart(state) {
     state.deleting = true;
     state.deleteFailed = false;
+    state.deleteSuccess = false;
   },
   deletePreacherSuccess(state, data) {
     if (data) state.preachers = state.preachers.filter(preacher => preacher.id !== data.id);
     state.deleting = false;
+    state.deleteSuccess = true;
   },
   deletePreacherFail(state) {
     state.deleting = false;
     state.deleteFailed = true;
+    state.deleteSuccess = false;
   },
 };
 
