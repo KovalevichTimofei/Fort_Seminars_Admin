@@ -1,7 +1,6 @@
 import api from '../../apiSingleton';
 
 const stateObj = {
-  lessonsList: [],
   lessons: [],
   loading: false,
   loadingFailed: false,
@@ -73,15 +72,10 @@ function deleteLesson({ commit }, id) {
     .catch(() => commit(DELETE_LESSON_FAIL));
 }
 
-function reWriteLessons({ commit }) {
-  commit('reWriteLessons');
-}
-
 const actions = {
   fetchAllLessons,
   fetchLessonsByMonth,
   fetchLessonsBySeminar,
-  reWriteLessons,
   createLesson,
   editLesson,
   deleteLesson,
@@ -97,23 +91,19 @@ const mutations = {
     state.loading = false;
   },
   fetchAllLessonsSuccess(state, data) {
-    state.lessonsList = data;
+    state.lessons = data;
     state.loading = false;
   },
   fetchLessonsFail(state) {
     state.loading = false;
     state.loadingFailed = true;
   },
-  reWriteLessons(state) {
-    console.log('rewrite');
-    state.lessons = [...state.lessons];
-  },
   createLessonStart(state) {
     state.creating = true;
     state.createFailed = false;
   },
   createLessonSuccess(state, data) {
-    if (data) state.lessonsList.push(data);
+    if (data) state.lessons.push(data);
     state.creating = false;
   },
   createLessonFail(state) {
@@ -126,8 +116,8 @@ const mutations = {
   },
   editLessonSuccess(state, data) {
     if (data) {
-      const editedElIndex = state.lessonsList.findIndex(el => el.id === data.id);
-      state.lessonsList.splice(editedElIndex, 1, data);
+      const editedElIndex = state.lessons.findIndex(el => el.id === data.id);
+      state.lessons.splice(editedElIndex, 1, data);
     }
     state.editing = false;
   },
@@ -141,7 +131,7 @@ const mutations = {
   },
   deleteLessonSuccess(state, data) {
     if (data) {
-      state.lessonsList = state.lessonsList.filter(lesson => lesson.id !== data.id);
+      state.lessons = state.lessons.filter(lesson => lesson.id !== data.id);
     }
     state.deleting = false;
   },

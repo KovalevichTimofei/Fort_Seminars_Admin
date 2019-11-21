@@ -13,6 +13,13 @@ const stateObj = {
   deleteFailed: false,
 };
 
+const getters = {
+  seminarsOptions: state => state.seminars.map(seminar => ({
+    value: seminar.id,
+    label: seminar.title,
+  })),
+};
+
 export const FETCH_SEMINAR_START = 'fetchSeminarsStart';
 export const FETCH_SEMINAR_SUCCESS = 'fetchSeminarSuccess';
 export const FETCH_SEMINAR_FAIL = 'fetchSeminarsFail';
@@ -145,6 +152,7 @@ const mutations = {
 export default {
   namespaced: true,
   state: stateObj,
+  getters,
   actions,
   mutations,
 };

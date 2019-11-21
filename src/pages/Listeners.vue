@@ -1,13 +1,13 @@
 <template>
   <q-page class="flex column">
     <Autocomplete
-      :stringOptions="seminarsList"
+      :stringOptions="seminarsOptions"
       @autocomplete-filter="filterSeminarsList"
       @make-filter="filterListeners"
     />
     <Table
       :columns="columns"
-      :data="listenersList"
+      :data="listeners"
       row_key="id"
       :pagination.sync="pagination"
       :selectedIds.sync="selectedIds"
@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 import Table from '../components/Table';
 import Autocomplete from '../components/Autocomplete';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
@@ -108,15 +108,8 @@ export default {
     };
   },
   computed: {
-    ...mapState({
-      listenersList: state => state.listeners.listeners,
-      listener: state => state.listeners.listener,
-      loading: state => state.listeners.loading,
-      seminarsList: state => state.seminars.seminars.map(seminar => ({
-        label: seminar.title,
-        value: seminar.id,
-      })),
-    }),
+    ...mapState('listeners', ['listeners', 'listener', 'loading']),
+    ...mapGetters('seminars', ['seminarsOptions']),
     ifo: {
       get() {
         return `${this.name} ${this.surname}`;
@@ -126,13 +119,23 @@ export default {
       },
     },
     listenersNamesList() {
-      return this.listenersList.map(listener => listener.ifo);
+      return this.listeners.map(listener => listener.ifo);
     },
   },
   methods: {
+    ...mapActions('listeners', [
+      'fetchAllListeners',
+      'fetchListener',
+      'createListener',
+      'editListener',
+      'deleteListener',
+    ]),
+    ...mapActions('seminars', [
+      'fetchAllSeminars',
+    ]),
     filterSeminarsList(val) {
       console.log(val);
-      this.$store.dispatch('seminars/fetchAllSeminars', {
+      this.fetchAllSeminars({
         filterBy: {
           field: 'title',
           value: val,
@@ -141,7 +144,7 @@ export default {
     },
     filterListeners(val) {
       console.log(val);
-      this.$store.dispatch('listeners/fetchAllListeners', {
+      this.fetchAllListeners({
         filterBy: {
           field: 'seminar_id',
           value: val,
@@ -155,7 +158,7 @@ export default {
       this.isCreateModalOpen = true;
     },
     async showEditModal(id) {
-      await this.$store.dispatch('listeners/fetchListener', id);
+      await this.fetchListener(id);
 
       this.id = this.listener.id;
       this.ifo = this.listener.ifo;
@@ -165,7 +168,7 @@ export default {
       this.isCreateModalOpen = true;
     },
     deleteListeners() {
-      this.selectedIds.forEach(item => this.$store.dispatch('listeners/deleteListener', item.id));
+      this.selectedIds.forEach(item => this.deleteListener(item.id));
       this.selectedIds = [];
     },
     async saveListener() {
@@ -174,13 +177,13 @@ export default {
       } = this;
 
       if (this.editingMode) {
-        await this.$store.dispatch('listeners/editListener', {
+        await this.editListener({
           id,
           ifo,
           email,
         });
       } else {
-        await this.$store.dispatch('listeners/createListener', {
+        await this.createListener({
           ifo,
           email,
         });
@@ -196,9 +199,9 @@ export default {
       this.selectedIds = [];
     },
   },
-  beforeCreate() {
-    this.$store.dispatch('listeners/fetchAllListeners');
-    this.$store.dispatch('seminars/fetchAllSeminars');
+  created() {
+    this.fetchAllListeners();
+    this.fetchAllSeminars();
   },
 };
 </script>

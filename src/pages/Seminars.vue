@@ -2,7 +2,7 @@
   <q-page class="flex">
     <Table
       :columns="columns"
-      :data="seminarsList"
+      :data="seminars"
       row_key="id"
       @show-create-modal="isStepperOpen = true"
       @show-edit-modal="showEditModal"
@@ -94,14 +94,14 @@
                       clear-icon="close"
                       label="Название"
                       @input="lessonDataInput($event, 'info', i)"
-                      :value="lessons[i-1].info"
+                      :value="lessonsListForCurSeminar[i-1].info"
                       style="width:300px"
                     />
                     <q-input
                       outlined
                       @input="lessonDataInput($event, 'date', i)"
                       mask="date"
-                      :value="lessons[i-1].date"
+                      :value="lessonsListForCurSeminar[i-1].date"
                       :rules="['date']"
                       style="width:300px"
                     >
@@ -113,7 +113,7 @@
                             transition-hide="scale"
                           >
                             <q-date
-                              :value="lessons[i-1].date"
+                              :value="lessonsListForCurSeminar[i-1].date"
                               @input="inputDate($event, i)"
                             />
                           </q-popup-proxy>
@@ -163,7 +163,7 @@
                 <q-select
                   outlined
                   v-model="preacherId"
-                  :options="preachersList"
+                  :options="preachersOptions"
                   label="Выбор проповедника"
                   :hint="createPreacherHint"
                   style="width:300px;"
@@ -351,7 +351,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 import Table from '../components/Table';
 import { generateId } from '../plugins/decoder';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
@@ -385,7 +385,7 @@ export default {
           name: 'lessons',
           required: true,
           label: 'Уроки',
-          field: 'lessons',
+          field: 'lessonsListForCurSeminar',
           align: 'center',
           sortable: false,
         },
@@ -412,7 +412,7 @@ export default {
       surname: '',
       photoUrl: '',
       preacherInfo: '',
-      lessons: [{ info: '', date: '' }],
+      lessonsListForCurSeminar: [{ info: '', date: '' }],
       date: '',
       lessonsColumns: [
         {
@@ -429,18 +429,10 @@ export default {
     };
   },
   computed: {
-    ...mapState({
-      seminarsList: state => state.seminars.seminars,
-      loading: state => state.seminars.loading,
-      preachersListInfo: state => state.preachers.preachers,
-      preachersList: state => state.preachers.preachers.map(preacher => ({
-        label: preacher.ifo,
-        value: preacher.id,
-      })),
-      preacher: state => state.preachers.preacher,
-      lessonsList: state => state.lessons.lessons,
-      seminar: state => state.seminars.seminar,
-    }),
+    ...mapState('seminars', ['seminars', 'loading', 'seminar']),
+    ...mapState('lessons', ['lessons']),
+    ...mapState('preachers', ['preacher', 'preachers']),
+    ...mapGetters('preachers', ['preachersOptions']),
     ifo: {
       get() {
         return `${this.name} ${this.surname}`;
@@ -450,7 +442,7 @@ export default {
       },
     },
     lessonsData() {
-      return this.lessons.map((el, i) => ({
+      return this.lessonsListForCurSeminar.map((el, i) => ({
         number: i + 1,
         info: el.info,
         date: new Date(el.date.split('/').join('-')).toLocaleString('ru', {
@@ -462,8 +454,22 @@ export default {
     },
   },
   methods: {
+    ...mapActions('seminars', [
+      'fetchAllSeminars',
+      'fetchSeminarById',
+      'createSeminar',
+      'editSeminar',
+      'deleteSeminar',
+    ]),
+    ...mapActions('preachers', [
+      'fetchAllPreachers',
+      'fetchCurrentPreacher',
+    ]),
+    ...mapActions('lessons', [
+      'fetchLessonsBySeminar',
+    ]),
     readPreacherInfo() {
-      const preacher = this.preachersListInfo.find(item => item.id === this.preacherId.value);
+      const preacher = this.preachers.find(item => item.id === this.preacherId.value);
       this.ifo = preacher.ifo;
       this.photoUrl = preacher.photo_url;
       this.preacherInfo = preacher.preacherInfo;
@@ -482,14 +488,14 @@ export default {
         };
 
       if (this.editingMode) {
-        await this.$store.dispatch('seminars/editSeminar', {
+        await this.editSeminar({
           seminar: {
             ...this.seminar,
             title,
             invite_link: inviteLink,
           },
           preacher,
-          lessons: this.lessons.map((el) => {
+          lessons: this.lessonsListForCurSeminar.map((el) => {
             const id = el.id || generateId();
 
             return {
@@ -502,14 +508,14 @@ export default {
       } else {
         const seminarId = generateId();
 
-        await this.$store.dispatch('seminars/createSeminar', {
+        await this.createSeminar({
           seminar: {
             id: seminarId,
             title,
             invite_link: inviteLink,
           },
           preacher,
-          lessons: this.lessons.map(el => ({
+          lessons: this.lessonsListForCurSeminar.map(el => ({
             ...el,
             seminar_id: seminarId,
             id: generateId(),
@@ -521,9 +527,9 @@ export default {
       this.clearInputs();
     },
     async showEditModal(id) {
-      await this.$store.dispatch('seminars/fetchSeminarById', id);
-      await this.$store.dispatch('preachers/fetchCurrentPreacher', this.seminar.preacher_id);
-      await this.$store.dispatch('lessons/fetchLessonsBySeminar', id);
+      await this.fetchSeminarById(id);
+      await this.fetchCurrentPreacher(this.seminar.preacher_id);
+      await this.fetchLessonsBySeminar(id);
 
       this.editingMode = true;
 
@@ -536,8 +542,8 @@ export default {
       this.preacherId.value = this.preacher.id;
       this.preacherId.label = this.preacher.ifo;
 
-      this.lessonsNumber = this.lessonsList.length;
-      this.lessons = this.lessonsList;
+      this.lessonsNumber = this.lessons.length;
+      this.lessonsListForCurSeminar = this.lessons;
       this.lessonsColumns = [
         {
           name: 'number', label: 'Номер', field: 'number',
@@ -556,13 +562,13 @@ export default {
       this.isConfirmDeleteModalOpen = true;
     },
     deleteSeminars() {
-      this.selectedIds.forEach(id => this.$store.dispatch('seminars/deleteSeminar', id));
+      this.selectedIds.forEach(item => this.deleteSeminar(item.id));
       this.selectedIds = [];
     },
     lessonDataInput(value, field, lessonNumber) {
       const index = lessonNumber - 1;
-      this.lessons.splice(index, 1, {
-        ...this.lessons[index],
+      this.lessonsListForCurSeminar.splice(index, 1, {
+        ...this.lessonsListForCurSeminar[index],
         [field]: value,
       });
     },
@@ -572,11 +578,11 @@ export default {
     },
     addLesson() {
       this.lessonsNumber += 1;
-      this.lessons.push({ info: '', date: '' });
+      this.lessonsListForCurSeminar.push({ info: '', date: '' });
     },
     tabChanged(value) {
       if (value === 'create') {
-        this.preacherId = '';
+        this.preacherId = {};
       }
     },
     clearInputs() {
@@ -585,19 +591,19 @@ export default {
       this.tab = 'choose';
       this.title = '';
       this.inviteLink = '';
-      this.preacherId = '';
+      this.preacherId = {};
       this.name = '';
       this.surname = '';
       this.photoUrl = '';
       this.preacherInfo = '';
-      this.lessons = [{ info: '', date: '' }];
+      this.lessonsListForCurSeminar = [{ info: '', date: '' }];
       this.date = '';
       this.selectedIds = [];
     },
   },
-  beforeCreate() {
-    this.$store.dispatch('seminars/fetchAllSeminars');
-    this.$store.dispatch('preachers/fetchAllPreachers');
+  created() {
+    this.fetchAllSeminars();
+    this.fetchAllPreachers();
   },
 };
 </script>

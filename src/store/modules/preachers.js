@@ -13,6 +13,13 @@ const stateObj = {
   deleteFailed: false,
 };
 
+const getters = {
+  preachersOptions: state => state.preachers.map(preacher => ({
+    value: preacher.id,
+    label: preacher.ifo,
+  })),
+};
+
 export const FETCH_PREACHER_START = 'fetchPreacherStart';
 export const FETCH_PREACHER_SUCCESS = 'fetchPreacherSuccess';
 export const FETCH_PREACHER_FAIL = 'fetchPreacherFail';
@@ -140,6 +147,7 @@ const mutations = {
 export default {
   namespaced: true,
   state: stateObj,
+  getters,
   actions,
   mutations,
 };

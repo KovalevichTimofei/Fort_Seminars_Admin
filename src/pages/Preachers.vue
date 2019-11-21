@@ -2,7 +2,7 @@
   <q-page class="flex">
     <Table
       :columns="columns"
-      :data="preachersList"
+      :data="preachers"
       row_key="id"
       :pagination.sync=pagination
       :selectedIds.sync="selectedIds"
@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import Table from '../components/Table';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import notificationsOptions from '../mixins/notificationsOptions';
@@ -118,12 +118,7 @@ export default {
     };
   },
   computed: {
-    ...mapState({
-      preachersList: state => state.preachers.preachers,
-      preacher: state => state.preachers.preacher,
-      loading: state => state.preachers.loading,
-      deleteSuccess: state => state.preachers.deleteSuccess,
-    }),
+    ...mapState('preachers', ['preachers', 'preacher', 'loading']),
     ifo: {
       get() {
         return `${this.name} ${this.surname}`;
@@ -134,6 +129,13 @@ export default {
     },
   },
   methods: {
+    ...mapActions('preachers', [
+      'fetchCurrentPreacher',
+      'deletePreacher',
+      'editPreacher',
+      'createPreacher',
+      'fetchAllPreachers',
+    ]),
     openConfirmDeleteModal() {
       this.isConfirmDeleteModalOpen = true;
     },
@@ -141,7 +143,7 @@ export default {
       this.isCreateModalOpen = true;
     },
     async showEditModal(id) {
-      await this.$store.dispatch('preachers/fetchCurrentPreacher', id);
+      await this.fetchCurrentPreacher(id);
 
       this.ifo = this.preacher.ifo;
       this.info = this.preacher.info;
@@ -151,7 +153,7 @@ export default {
       this.isCreateModalOpen = true;
     },
     deletePreachers() {
-      const promises = this.selectedIds.map(item => this.$store.dispatch('preachers/deletePreacher', item.id));
+      const promises = this.selectedIds.map(item => this.deletePreacher(item.id));
 
       const pending = this.showNotif('pendingMessage', 'Удаление...');
 
@@ -175,7 +177,7 @@ export default {
       const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
 
       if (this.editingMode) {
-        this.$store.dispatch('preachers/editPreacher', {
+        this.editPreacher({
           id: this.preacher.id,
           ifo,
           info,
@@ -190,7 +192,7 @@ export default {
             this.showNotif('failMessage', 'Сохранить не удаётся!');
           });
       } else {
-        this.$store.dispatch('preachers/createPreacher', {
+        this.createPreacher({
           ifo,
           info,
           photo_url: photoUrl,
@@ -224,8 +226,8 @@ export default {
       });
     },
   },
-  beforeCreate() {
-    this.$store.dispatch('preachers/fetchAllPreachers');
+  created() {
+    this.fetchAllPreachers();
   },
 };
 </script>

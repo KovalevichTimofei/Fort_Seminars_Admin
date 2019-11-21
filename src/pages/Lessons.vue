@@ -2,7 +2,7 @@
   <q-page class="flex">
     <Table
       :columns="columns"
-      :data="lessonsList"
+      :data="lessons"
       row_key="id"
       :pagination.sync="pagination"
       :selectedIds.sync="selectedIds"
@@ -50,7 +50,7 @@
           <q-select
             outlined
             v-model="seminarId"
-            :options="seminarsList"
+            :options="seminarsOptions"
             label="Выбор семинара"
             class="input-text-field"
             style="width:300px;"
@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 import Table from '../components/Table';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 
@@ -138,16 +138,19 @@ export default {
     };
   },
   computed: {
-    ...mapState({
-      seminarsList: state => state.seminars.seminars.map(seminar => ({
-        value: seminar.id,
-        label: seminar.title,
-      })),
-      lessonsList: state => state.lessons.lessonsList,
-      loading: state => state.lessons.loading,
-    }),
+    ...mapState('lessons', ['lessons', 'loading']),
+    ...mapGetters('seminars', ['seminarsOptions']),
   },
   methods: {
+    ...mapActions('lessons', [
+      'fetchAllLessons',
+      'createLesson',
+      'editLesson',
+      'deleteLesson',
+    ]),
+    ...mapActions('seminars', [
+      'fetchAllSeminars',
+    ]),
     openConfirmDeleteModal() {
       this.isConfirmDeleteModalOpen = true;
     },
@@ -155,7 +158,7 @@ export default {
       this.isCreateModalOpen = true;
     },
     async showEditModal(id) {
-      const lesson = this.lessonsList.find(item => item.id === id);
+      const lesson = this.lessons.find(item => item.id === id);
 
       this.id = lesson.id;
       this.info = lesson.info;
@@ -168,8 +171,7 @@ export default {
       this.isCreateModalOpen = true;
     },
     deleteLessons() {
-      console.log(this.selectedIds);
-      this.selectedIds.forEach(item => this.$store.dispatch('lessons/deleteLesson', item.id));
+      this.selectedIds.forEach(item => this.deleteLesson(item.id));
       this.selectedIds = [];
     },
     async saveLesson() {
@@ -178,11 +180,11 @@ export default {
       } = this;
 
       if (this.editingMode) {
-        await this.$store.dispatch('lessons/editLesson', {
+        await this.editLesson({
           id, info, date, part_numb: partNumb, seminar_id: seminarId.value,
         });
       } else {
-        await this.$store.dispatch('lessons/createLesson', {
+        await this.createLesson({
           info, date, part_numb: partNumb, seminar_id: seminarId.value,
         });
       }
@@ -199,9 +201,9 @@ export default {
       this.selectedIds = [];
     },
   },
-  beforeCreate() {
-    this.$store.dispatch('lessons/fetchAllLessons');
-    this.$store.dispatch('seminars/fetchAllSeminars');
+  created() {
+    this.fetchAllLessons();
+    this.fetchAllSeminars();
   },
 };
 </script>
