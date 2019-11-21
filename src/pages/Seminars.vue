@@ -510,13 +510,12 @@ export default {
           }),
         })
           .then(() => {
-            dismiss();
             this.showNotif('successMessage', 'Сохранено!');
           })
           .catch(() => {
-            dismiss();
             this.showNotif('failMessage', 'Сохранить не удаётся!');
-          });
+          })
+          .finally(() => dismiss());
       } else {
         const seminarId = generateId();
 
@@ -534,13 +533,12 @@ export default {
           })),
         })
           .then(() => {
-            dismiss();
             this.showNotif('successMessage', 'Сохранено!');
           })
           .catch(() => {
-            dismiss();
             this.showNotif('failMessage', 'Сохранить не удаётся!');
-          });
+          })
+          .finally(() => dismiss());
       }
 
       this.isStepperOpen = false;
