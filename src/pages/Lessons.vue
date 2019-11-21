@@ -198,25 +198,23 @@ export default {
           id, info, date, part_numb: partNumb, seminar_id: seminarId.value,
         })
           .then(() => {
-            dismiss();
             this.showNotif('successMessage', 'Сохранено!');
           })
           .catch(() => {
-            dismiss();
             this.showNotif('failMessage', 'Сохранить не удаётся!');
-          });
+          })
+          .finally(() => dismiss());
       } else {
         await this.createLesson({
           info, date, part_numb: partNumb, seminar_id: seminarId.value,
         })
           .then(() => {
-            dismiss();
             this.showNotif('successMessage', 'Сохранено!');
           })
           .catch(() => {
-            dismiss();
             this.showNotif('failMessage', 'Сохранить не удаётся!');
-          });
+          })
+          .finally(() => dismiss());
       }
       this.clearInputs();
     },

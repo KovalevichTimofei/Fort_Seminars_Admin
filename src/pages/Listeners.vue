@@ -195,26 +195,24 @@ export default {
           email,
         })
           .then(() => {
-            dismiss();
             this.showNotif('successMessage', 'Сохранено!');
           })
           .catch(() => {
-            dismiss();
             this.showNotif('failMessage', 'Сохранить не удаётся!');
-          });
+          })
+          .finally(() => dismiss());
       } else {
         await this.createListener({
           ifo,
           email,
         })
           .then(() => {
-            dismiss();
             this.showNotif('successMessage', 'Сохранено!');
           })
           .catch(() => {
-            dismiss();
             this.showNotif('failMessage', 'Сохранить не удаётся!');
-          });
+          })
+          .finally(() => dismiss());
       }
       this.clearInputs();
     },

@@ -33,7 +33,7 @@ function failMessage(message) {
   };
 }
 
-function notifyAfterActionsSequence(actions, dissmiss, sucMess, failMess) {
+function notifyAfterActionsSequence(actions, dismiss, sucMess, failMess) {
   Promise.all(actions)
     .then(() => {
       this.showNotif('successMessage', sucMess);
@@ -41,7 +41,7 @@ function notifyAfterActionsSequence(actions, dissmiss, sucMess, failMess) {
     .catch(() => {
       this.showNotif('failMessage', failMess);
     })
-    .finally(() => dissmiss());
+    .finally(() => dismiss());
 }
 
 export default {

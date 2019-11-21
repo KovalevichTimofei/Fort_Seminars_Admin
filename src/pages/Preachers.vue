@@ -197,13 +197,12 @@ export default {
           photo_url: photoUrl,
         })
           .then(() => {
-            dismiss();
             this.showNotif('successMessage', 'Сохранено!');
           })
           .catch(() => {
-            dismiss();
             this.showNotif('failMessage', 'Сохранить не удаётся!');
-          });
+          })
+          .finally(() => dismiss());
       }
 
       this.clearInputs();
