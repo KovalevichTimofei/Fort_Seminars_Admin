@@ -66,10 +66,12 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
+import { createNamespacedHelpers } from 'vuex';
 import Table from '../components/Table';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import notificationsOptions from '../mixins/notificationsOptions';
+
+const { mapState, mapActions } = createNamespacedHelpers('preachers');
 
 export default {
   name: 'Preachers',
