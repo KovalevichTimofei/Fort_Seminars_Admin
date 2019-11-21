@@ -47,5 +47,12 @@ export default {
     successMessage,
     pendingMessage,
     failMessage,
+    showNotif(type, message) {
+      const options = this[type](message);
+
+      return this.$q.notify({
+        ...options,
+      });
+    },
   },
 };

@@ -220,13 +220,6 @@ export default {
       this.preacher = {};
       this.selectedIds = [];
     },
-    showNotif(type, message) {
-      const options = this[type](message);
-
-      return this.$q.notify({
-        ...options,
-      });
-    },
   },
   created() {
     this.fetchAllPreachers();

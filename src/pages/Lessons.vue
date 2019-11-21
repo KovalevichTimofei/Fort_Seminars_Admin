@@ -179,14 +179,32 @@ export default {
         id, info, date, partNumb, seminarId,
       } = this;
 
+      const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
+
       if (this.editingMode) {
         await this.editLesson({
           id, info, date, part_numb: partNumb, seminar_id: seminarId.value,
-        });
+        })
+          .then(() => {
+            dismiss();
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            dismiss();
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          });
       } else {
         await this.createLesson({
           info, date, part_numb: partNumb, seminar_id: seminarId.value,
-        });
+        })
+          .then(() => {
+            dismiss();
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            dismiss();
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          });
       }
       this.clearInputs();
     },
