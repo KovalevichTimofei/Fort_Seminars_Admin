@@ -33,6 +33,17 @@ function failMessage(message) {
   };
 }
 
+function notifyAfterActionsSequence(actions, dissmiss, sucMess, failMess) {
+  Promise.all(actions)
+    .then(() => {
+      this.showNotif('successMessage', sucMess);
+    })
+    .catch(() => {
+      this.showNotif('failMessage', failMess);
+    })
+    .finally(() => dissmiss());
+}
+
 export default {
   data() {
     return {
@@ -47,6 +58,7 @@ export default {
     successMessage,
     pendingMessage,
     failMessage,
+    notifyAfterActionsSequence,
     showNotif(type, message) {
       const options = this[type](message);
 

@@ -157,17 +157,14 @@ export default {
     deletePreachers() {
       const promises = this.selectedIds.map(item => this.deletePreacher(item.id));
 
-      const pending = this.showNotif('pendingMessage', 'Удаление...');
+      const dismiss = this.showNotif('pendingMessage', 'Удаление...');
 
-      Promise.all(promises)
-        .then(() => {
-          pending();
-          this.showNotif('successMessage', 'Удалено успешно!');
-        })
-        .catch(() => {
-          pending();
-          this.showNotif('failMessage', 'Не удаётся удалить!');
-        });
+      this.notifyAfterActionsSequence(
+        promises,
+        dismiss,
+        'Удалено успешно!',
+        'Не удаётся удалить!',
+      );
 
       this.selectedIds = [];
     },

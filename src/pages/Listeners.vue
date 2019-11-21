@@ -68,6 +68,7 @@ import { mapState, mapGetters, mapActions } from 'vuex';
 import Table from '../components/Table';
 import Autocomplete from '../components/Autocomplete';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
+import notificationsOptions from '../mixins/notificationsOptions';
 
 export default {
   name: 'Listeners',
@@ -76,6 +77,7 @@ export default {
     Autocomplete,
     ConfirmDeleteModal,
   },
+  mixins: [notificationsOptions],
   data() {
     return {
       columns: [
@@ -166,19 +168,16 @@ export default {
       this.isCreateModalOpen = true;
     },
     deleteListeners() {
-      const promises = this.selectedIds.forEach(item => this.deleteListener(item.id));
+      const promises = this.selectedIds.map(item => this.deleteListener(item.id));
 
-      const pending = this.showNotif('pendingMessage', 'Удаление...');
+      const dismiss = this.showNotif('pendingMessage', 'Удаление...');
 
-      Promise.all(promises)
-        .then(() => {
-          pending();
-          this.showNotif('successMessage', 'Удалено успешно!');
-        })
-        .catch(() => {
-          pending();
-          this.showNotif('failMessage', 'Не удаётся удалить!');
-        });
+      this.notifyAfterActionsSequence(
+        promises,
+        dismiss,
+        'Удалено успешно!',
+        'Не удаётся удалить!',
+      );
 
       this.selectedIds = [];
     },
