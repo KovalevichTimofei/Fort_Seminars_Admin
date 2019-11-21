@@ -487,6 +487,8 @@ export default {
           info: preacherInfo,
         };
 
+      const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
+
       if (this.editingMode) {
         await this.editSeminar({
           seminar: {
@@ -504,7 +506,15 @@ export default {
               id,
             };
           }),
-        });
+        })
+          .then(() => {
+            dismiss();
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            dismiss();
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          });
       } else {
         const seminarId = generateId();
 
@@ -520,7 +530,15 @@ export default {
             seminar_id: seminarId,
             id: generateId(),
           })),
-        });
+        })
+          .then(() => {
+            dismiss();
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            dismiss();
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          });
       }
 
       this.isStepperOpen = false;
@@ -562,7 +580,20 @@ export default {
       this.isConfirmDeleteModalOpen = true;
     },
     deleteSeminars() {
-      this.selectedIds.forEach(item => this.deleteSeminar(item.id));
+      const promises = this.selectedIds.forEach(item => this.deleteSeminar(item.id));
+
+      const pending = this.showNotif('pendingMessage', 'Удаление...');
+
+      Promise.all(promises)
+        .then(() => {
+          pending();
+          this.showNotif('successMessage', 'Удалено успешно!');
+        })
+        .catch(() => {
+          pending();
+          this.showNotif('failMessage', 'Не удаётся удалить!');
+        });
+
       this.selectedIds = [];
     },
     lessonDataInput(value, field, lessonNumber) {

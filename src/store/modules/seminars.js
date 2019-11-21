@@ -24,13 +24,6 @@ export const FETCH_SEMINAR_START = 'fetchSeminarsStart';
 export const FETCH_SEMINAR_SUCCESS = 'fetchSeminarSuccess';
 export const FETCH_SEMINAR_FAIL = 'fetchSeminarsFail';
 
-function fetchCurrentSeminar({ commit }) {
-  commit(FETCH_SEMINAR_START);
-  return api.seminars.getCurrentSeminar()
-    .then(data => commit(FETCH_SEMINAR_SUCCESS, data))
-    .catch(() => commit(FETCH_SEMINAR_FAIL));
-}
-
 function fetchSeminarById({ commit }, id) {
   commit(FETCH_SEMINAR_START);
   return api.seminars.getSeminar(id)
@@ -84,7 +77,6 @@ function deleteSeminar({ commit }, id) {
 
 const actions = {
   fetchSeminarById,
-  fetchCurrentSeminar,
   fetchAllSeminars,
   createSeminar,
   editSeminar,

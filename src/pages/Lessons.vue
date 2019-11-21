@@ -171,7 +171,20 @@ export default {
       this.isCreateModalOpen = true;
     },
     deleteLessons() {
-      this.selectedIds.forEach(item => this.deleteLesson(item.id));
+      const promises = this.selectedIds.map(item => this.deleteLesson(item.id));
+
+      const pending = this.showNotif('pendingMessage', 'Удаление...');
+
+      Promise.all(promises)
+        .then(() => {
+          pending();
+          this.showNotif('successMessage', 'Удалено успешно!');
+        })
+        .catch(() => {
+          pending();
+          this.showNotif('failMessage', 'Не удаётся удалить!');
+        });
+
       this.selectedIds = [];
     },
     async saveLesson() {

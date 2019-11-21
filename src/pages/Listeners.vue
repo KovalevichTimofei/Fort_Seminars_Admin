@@ -134,7 +134,6 @@ export default {
       'fetchAllSeminars',
     ]),
     filterSeminarsList(val) {
-      console.log(val);
       this.fetchAllSeminars({
         filterBy: {
           field: 'title',
@@ -143,7 +142,6 @@ export default {
       });
     },
     filterListeners(val) {
-      console.log(val);
       this.fetchAllListeners({
         filterBy: {
           field: 'seminar_id',
@@ -168,7 +166,20 @@ export default {
       this.isCreateModalOpen = true;
     },
     deleteListeners() {
-      this.selectedIds.forEach(item => this.deleteListener(item.id));
+      const promises = this.selectedIds.forEach(item => this.deleteListener(item.id));
+
+      const pending = this.showNotif('pendingMessage', 'Удаление...');
+
+      Promise.all(promises)
+        .then(() => {
+          pending();
+          this.showNotif('successMessage', 'Удалено успешно!');
+        })
+        .catch(() => {
+          pending();
+          this.showNotif('failMessage', 'Не удаётся удалить!');
+        });
+
       this.selectedIds = [];
     },
     async saveListener() {
@@ -176,17 +187,35 @@ export default {
         id, ifo, email,
       } = this;
 
+      const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
+
       if (this.editingMode) {
         await this.editListener({
           id,
           ifo,
           email,
-        });
+        })
+          .then(() => {
+            dismiss();
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            dismiss();
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          });
       } else {
         await this.createListener({
           ifo,
           email,
-        });
+        })
+          .then(() => {
+            dismiss();
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            dismiss();
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          });
       }
       this.clearInputs();
     },
@@ -200,6 +229,7 @@ export default {
     },
   },
   created() {
+    console.log(this);
     this.fetchAllListeners();
     this.fetchAllSeminars();
   },

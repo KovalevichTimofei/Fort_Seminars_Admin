@@ -120,7 +120,7 @@ export default {
     };
   },
   computed: {
-    ...mapState('preachers', ['preachers', 'preacher', 'loading']),
+    ...mapState(['preachers', 'preacher', 'loading']),
     ifo: {
       get() {
         return `${this.name} ${this.surname}`;
@@ -131,7 +131,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions('preachers', [
+    ...mapActions([
       'fetchCurrentPreacher',
       'deletePreacher',
       'editPreacher',
@@ -224,6 +224,7 @@ export default {
   created() {
     this.fetchAllPreachers();
   },
+
 };
 </script>
 
