@@ -72,7 +72,7 @@ function deletePreacher({ commit }, id) {
   commit(DELETE_PREACHER_START);
   return api.preachers.deletePreacher(id)
     .then(data => commit(DELETE_PREACHER_SUCCESS, data))
-    .catch(() => commit(DELETE_PREACHER_FAIL));
+    .catch(err => throw new Error(err));
 }
 
 const actions = {

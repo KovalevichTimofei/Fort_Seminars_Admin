@@ -68,6 +68,7 @@ import { mapState, mapGetters, mapActions } from 'vuex';
 import Table from '../components/Table';
 import Autocomplete from '../components/Autocomplete';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
+import notificationsOptions from '../mixins/notificationsOptions';
 
 export default {
   name: 'Listeners',
@@ -76,6 +77,7 @@ export default {
     Autocomplete,
     ConfirmDeleteModal,
   },
+  mixins: [notificationsOptions],
   data() {
     return {
       columns: [
@@ -134,7 +136,6 @@ export default {
       'fetchAllSeminars',
     ]),
     filterSeminarsList(val) {
-      console.log(val);
       this.fetchAllSeminars({
         filterBy: {
           field: 'title',
@@ -143,7 +144,6 @@ export default {
       });
     },
     filterListeners(val) {
-      console.log(val);
       this.fetchAllListeners({
         filterBy: {
           field: 'seminar_id',
@@ -168,7 +168,17 @@ export default {
       this.isCreateModalOpen = true;
     },
     deleteListeners() {
-      this.selectedIds.forEach(item => this.deleteListener(item.id));
+      const promises = this.selectedIds.map(item => this.deleteListener(item.id));
+
+      const dismiss = this.showNotif('pendingMessage', 'Удаление...');
+
+      this.notifyAfterActionsSequence(
+        promises,
+        dismiss,
+        'Удалено успешно!',
+        'Не удаётся удалить!',
+      );
+
       this.selectedIds = [];
     },
     async saveListener() {
@@ -176,17 +186,33 @@ export default {
         id, ifo, email,
       } = this;
 
+      const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
+
       if (this.editingMode) {
         await this.editListener({
           id,
           ifo,
           email,
-        });
+        })
+          .then(() => {
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          })
+          .finally(() => dismiss());
       } else {
         await this.createListener({
           ifo,
           email,
-        });
+        })
+          .then(() => {
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          })
+          .finally(() => dismiss());
       }
       this.clearInputs();
     },
@@ -200,6 +226,7 @@ export default {
     },
   },
   created() {
+    console.log(this);
     this.fetchAllListeners();
     this.fetchAllSeminars();
   },

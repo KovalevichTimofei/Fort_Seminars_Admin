@@ -355,6 +355,7 @@ import { mapState, mapGetters, mapActions } from 'vuex';
 import Table from '../components/Table';
 import { generateId } from '../plugins/decoder';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
+import notificationsOptions from '../mixins/notificationsOptions';
 
 export default {
   name: 'Seminars',
@@ -362,6 +363,7 @@ export default {
     Table,
     ConfirmDeleteModal,
   },
+  mixins: [notificationsOptions],
   data() {
     return {
       columns: [
@@ -487,6 +489,8 @@ export default {
           info: preacherInfo,
         };
 
+      const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
+
       if (this.editingMode) {
         await this.editSeminar({
           seminar: {
@@ -504,7 +508,14 @@ export default {
               id,
             };
           }),
-        });
+        })
+          .then(() => {
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          })
+          .finally(() => dismiss());
       } else {
         const seminarId = generateId();
 
@@ -520,7 +531,14 @@ export default {
             seminar_id: seminarId,
             id: generateId(),
           })),
-        });
+        })
+          .then(() => {
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          })
+          .finally(() => dismiss());
       }
 
       this.isStepperOpen = false;
@@ -562,7 +580,17 @@ export default {
       this.isConfirmDeleteModalOpen = true;
     },
     deleteSeminars() {
-      this.selectedIds.forEach(item => this.deleteSeminar(item.id));
+      const promises = this.selectedIds.map(item => this.deleteSeminar(item.id));
+
+      const dismiss = this.showNotif('pendingMessage', 'Удаление...');
+
+      this.notifyAfterActionsSequence(
+        promises,
+        dismiss,
+        'Удалено успешно!',
+        'Не удаётся удалить!',
+      );
+
       this.selectedIds = [];
     },
     lessonDataInput(value, field, lessonNumber) {

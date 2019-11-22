@@ -82,6 +82,7 @@
 import { mapState, mapGetters, mapActions } from 'vuex';
 import Table from '../components/Table';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
+import notificationsOptions from '../mixins/notificationsOptions';
 
 export default {
   name: 'Lessons',
@@ -89,6 +90,7 @@ export default {
     Table,
     ConfirmDeleteModal,
   },
+  mixins: [notificationsOptions],
   data() {
     return {
       columns: [
@@ -171,7 +173,17 @@ export default {
       this.isCreateModalOpen = true;
     },
     deleteLessons() {
-      this.selectedIds.forEach(item => this.deleteLesson(item.id));
+      const promises = this.selectedIds.map(item => this.deleteLesson(item.id));
+
+      const dismiss = this.showNotif('pendingMessage', 'Удаление...');
+
+      this.notifyAfterActionsSequence(
+        promises,
+        dismiss,
+        'Удалено успешно!',
+        'Не удаётся удалить!',
+      );
+
       this.selectedIds = [];
     },
     async saveLesson() {
@@ -179,14 +191,30 @@ export default {
         id, info, date, partNumb, seminarId,
       } = this;
 
+      const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
+
       if (this.editingMode) {
         await this.editLesson({
           id, info, date, part_numb: partNumb, seminar_id: seminarId.value,
-        });
+        })
+          .then(() => {
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          })
+          .finally(() => dismiss());
       } else {
         await this.createLesson({
           info, date, part_numb: partNumb, seminar_id: seminarId.value,
-        });
+        })
+          .then(() => {
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          })
+          .finally(() => dismiss());
       }
       this.clearInputs();
     },

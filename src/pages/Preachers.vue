@@ -120,7 +120,7 @@ export default {
     };
   },
   computed: {
-    ...mapState('preachers', ['preachers', 'preacher', 'loading']),
+    ...mapState(['preachers', 'preacher', 'loading']),
     ifo: {
       get() {
         return `${this.name} ${this.surname}`;
@@ -131,7 +131,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions('preachers', [
+    ...mapActions([
       'fetchCurrentPreacher',
       'deletePreacher',
       'editPreacher',
@@ -157,17 +157,14 @@ export default {
     deletePreachers() {
       const promises = this.selectedIds.map(item => this.deletePreacher(item.id));
 
-      const pending = this.showNotif('pendingMessage', 'Удаление...');
+      const dismiss = this.showNotif('pendingMessage', 'Удаление...');
 
-      Promise.all(promises)
-        .then(() => {
-          pending();
-          this.showNotif('successMessage', 'Удалено успешно!');
-        })
-        .catch(() => {
-          pending();
-          this.showNotif('failMessage', 'Не удаётся удалить!');
-        });
+      this.notifyAfterActionsSequence(
+        promises,
+        dismiss,
+        'Удалено успешно!',
+        'Не удаётся удалить!',
+      );
 
       this.selectedIds = [];
     },
@@ -186,13 +183,12 @@ export default {
           photo_url: photoUrl,
         })
           .then(() => {
-            dismiss();
             this.showNotif('successMessage', 'Сохранено!');
           })
           .catch(() => {
-            dismiss();
             this.showNotif('failMessage', 'Сохранить не удаётся!');
-          });
+          })
+          .finally(() => dismiss());
       } else {
         this.createPreacher({
           ifo,
@@ -200,13 +196,12 @@ export default {
           photo_url: photoUrl,
         })
           .then(() => {
-            dismiss();
             this.showNotif('successMessage', 'Сохранено!');
           })
           .catch(() => {
-            dismiss();
             this.showNotif('failMessage', 'Сохранить не удаётся!');
-          });
+          })
+          .finally(() => dismiss());
       }
 
       this.clearInputs();
@@ -220,17 +215,11 @@ export default {
       this.preacher = {};
       this.selectedIds = [];
     },
-    showNotif(type, message) {
-      const options = this[type](message);
-
-      return this.$q.notify({
-        ...options,
-      });
-    },
   },
   created() {
     this.fetchAllPreachers();
   },
+
 };
 </script>
 
