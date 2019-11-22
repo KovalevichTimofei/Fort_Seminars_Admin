@@ -1,4 +1,5 @@
 import api from '../../apiSingleton';
+import { DELETE_PREACHER_FAIL } from './preachers';
 
 const stateObj = {
   lessons: [],
@@ -46,7 +47,10 @@ function createLesson({ commit }, newLesson) {
   commit(CREATE_LESSON_START);
   return api.lessons.createLesson(newLesson)
     .then(data => commit(CREATE_LESSON_SUCCESS, data))
-    .catch(() => commit(CREATE_LESSON_FAIL));
+    .catch((err) => {
+      commit(CREATE_LESSON_FAIL);
+      throw new Error(err);
+    });
 }
 
 export const EDIT_LESSON_START = 'editLessonStart';
@@ -57,7 +61,10 @@ function editLesson({ commit }, newLesson) {
   commit(EDIT_LESSON_START);
   return api.lessons.editLesson(newLesson.id, newLesson)
     .then(data => commit(EDIT_LESSON_SUCCESS, data))
-    .catch(() => commit(EDIT_LESSON_FAIL));
+    .catch((err) => {
+      commit(EDIT_LESSON_FAIL);
+      throw new Error(err);
+    });
 }
 
 export const DELETE_LESSON_START = 'deleteLessonStart';
@@ -69,7 +76,10 @@ function deleteLesson({ commit }, id) {
   commit(DELETE_LESSON_START);
   return api.lessons.deleteLesson(id)
     .then(data => commit(DELETE_LESSON_SUCCESS, data))
-    .catch(() => commit(DELETE_LESSON_FAIL));
+    .catch((err) => {
+      commit(DELETE_LESSON_FAIL);
+      throw new Error(err);
+    });
 }
 
 const actions = {

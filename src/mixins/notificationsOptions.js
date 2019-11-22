@@ -34,7 +34,7 @@ function failMessage(message) {
 }
 
 function notifyAfterActionsSequence(actions, dismiss, sucMess, failMess) {
-  Promise.all(actions)
+  return Promise.all(actions)
     .then(() => {
       this.showNotif('successMessage', sucMess);
     })

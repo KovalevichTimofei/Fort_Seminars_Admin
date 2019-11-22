@@ -50,7 +50,10 @@ function createPreacher({ commit }, options) {
   commit(CREATE_PREACHER_START);
   return api.preachers.createPreacher(options)
     .then(data => commit(CREATE_PREACHER_SUCCESS, data))
-    .catch(() => commit(CREATE_PREACHER_FAIL));
+    .catch((err) => {
+      commit(CREATE_PREACHER_FAIL);
+      throw new Error(err);
+    });
 }
 
 export const EDIT_PREACHER_START = 'editPreacherStart';
@@ -61,7 +64,10 @@ function editPreacher({ commit }, options) {
   commit(EDIT_PREACHER_START);
   return api.preachers.editPreacher(options.id, options)
     .then(data => commit(EDIT_PREACHER_SUCCESS, data))
-    .catch(() => commit(EDIT_PREACHER_FAIL));
+    .catch((err) => {
+      commit(EDIT_PREACHER_FAIL);
+      throw new Error(err);
+    });
 }
 
 export const DELETE_PREACHER_START = 'deletePreacherStart';
@@ -72,7 +78,10 @@ function deletePreacher({ commit }, id) {
   commit(DELETE_PREACHER_START);
   return api.preachers.deletePreacher(id)
     .then(data => commit(DELETE_PREACHER_SUCCESS, data))
-    .catch(err => throw new Error(err));
+    .catch((err) => {
+      commit(DELETE_PREACHER_FAIL);
+      throw new Error(err);
+    });
 }
 
 const actions = {
