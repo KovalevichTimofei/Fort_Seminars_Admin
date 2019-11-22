@@ -1,29 +1,83 @@
 <template>
   <q-page class="flex column">
     <Autocomplete
-      :stringOptions="seminarsList"
+      :stringOptions="seminarsOptions"
       @autocomplete-filter="filterSeminarsList"
       @make-filter="filterListeners"
     />
     <Table
       :columns="columns"
-      :data="listenersList"
-      row_key="ifo"
+      :data="listeners"
+      row_key="id"
+      :pagination.sync="pagination"
+      :selectedIds.sync="selectedIds"
+      @show-create-modal="showCreateModal"
+      @show-edit-modal="showEditModal"
+      @delete-items="openConfirmDeleteModal"
+    />
+    <q-dialog v-model="isCreateModalOpen">
+      <q-card class="q-pa-md">
+        <q-card-section>
+          <div class="q-mt-md text-center">
+            Заполните данные о слушателе:
+          </div>
+          <q-input
+            clearable
+            outlined
+            class="input-text-field"
+            clear-icon="close"
+            v-model="name"
+            label="Имя"
+            style="width:300px"
+          />
+          <q-input
+            clearable
+            outlined
+            class="input-text-field"
+            clear-icon="close"
+            v-model="surname"
+            label="Фамилия"
+            style="width:300px"
+          />
+          <q-input
+            clearable
+            outlined
+            class="input-text-field"
+            clear-icon="close"
+            v-model="email"
+            label="Email"
+            style="width:300px"
+          />
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn color="primary" v-close-popup>Отмена</q-btn>
+          <q-btn color="primary" @click="saveListener" v-close-popup>Сохранить</q-btn>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <ConfirmDeleteModal
+      text="Вы действительно хотите удалить выбранных слушателей?"
+      @delete-confirmed="deleteListeners"
+      v-model="isConfirmDeleteModalOpen"
     />
   </q-page>
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 import Table from '../components/Table';
 import Autocomplete from '../components/Autocomplete';
+import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
+import notificationsOptions from '../mixins/notificationsOptions';
 
 export default {
   name: 'Listeners',
   components: {
     Table,
     Autocomplete,
+    ConfirmDeleteModal,
   },
+  mixins: [notificationsOptions],
   data() {
     return {
       columns: [
@@ -44,25 +98,45 @@ export default {
           // sortable: true,
         },
       ],
+      selectedIds: [],
+      pagination: { rowsPerPage: 20 },
+      isConfirmDeleteModalOpen: false,
+      isCreateModalOpen: false,
+      editingMode: false,
+      id: '',
+      email: '',
+      name: '',
+      surname: '',
     };
   },
   computed: {
-    ...mapState({
-      listenersList: state => state.listeners.listeners,
-      loading: state => state.listeners.loading,
-      seminarsList: state => state.seminars.seminars.map(seminar => ({
-        label: seminar.title,
-        value: seminar.id,
-      })),
-    }),
-    // eslint-disable-next-line max-len
+    ...mapState('listeners', ['listeners', 'listener', 'loading']),
+    ...mapGetters('seminars', ['seminarsOptions']),
+    ifo: {
+      get() {
+        return `${this.name} ${this.surname}`;
+      },
+      set(ifo) {
+        [this.name, this.surname] = ifo.split(' ');
+      },
+    },
     listenersNamesList() {
-      return this.listenersList.map(listener => listener.ifo);
+      return this.listeners.map(listener => listener.ifo);
     },
   },
   methods: {
+    ...mapActions('listeners', [
+      'fetchAllListeners',
+      'fetchListener',
+      'createListener',
+      'editListener',
+      'deleteListener',
+    ]),
+    ...mapActions('seminars', [
+      'fetchAllSeminars',
+    ]),
     filterSeminarsList(val) {
-      this.$store.dispatch('seminars/fetchAllSeminars', {
+      this.fetchAllSeminars({
         filterBy: {
           field: 'title',
           value: val,
@@ -70,21 +144,97 @@ export default {
       });
     },
     filterListeners(val) {
-      this.$store.dispatch('listeners/fetchAllUsers', {
+      this.fetchAllListeners({
         filterBy: {
           field: 'seminar_id',
           value: val,
         },
       });
     },
+    openConfirmDeleteModal() {
+      this.isConfirmDeleteModalOpen = true;
+    },
+    showCreateModal() {
+      this.isCreateModalOpen = true;
+    },
+    async showEditModal(id) {
+      await this.fetchListener(id);
+
+      this.id = this.listener.id;
+      this.ifo = this.listener.ifo;
+      this.email = this.listener.email;
+
+      this.editingMode = true;
+      this.isCreateModalOpen = true;
+    },
+    deleteListeners() {
+      const promises = this.selectedIds.map(item => this.deleteListener(item.id));
+
+      const dismiss = this.showNotif('pendingMessage', 'Удаление...');
+
+      this.notifyAfterActionsSequence(
+        promises,
+        dismiss,
+        'Удалено успешно!',
+        'Не удаётся удалить!',
+      );
+
+      this.selectedIds = [];
+    },
+    async saveListener() {
+      const {
+        id, ifo, email,
+      } = this;
+
+      const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
+
+      if (this.editingMode) {
+        await this.editListener({
+          id,
+          ifo,
+          email,
+        })
+          .then(() => {
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          })
+          .finally(() => dismiss());
+      } else {
+        await this.createListener({
+          ifo,
+          email,
+        })
+          .then(() => {
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          })
+          .finally(() => dismiss());
+      }
+      this.clearInputs();
+    },
+    clearInputs() {
+      this.editingMode = false;
+      this.name = '';
+      this.surname = '';
+      this.email = '';
+      this.listener = {};
+      this.selectedIds = [];
+    },
   },
-  beforeCreate() {
-    this.$store.dispatch('listeners/fetchAllUsers');
-    this.$store.dispatch('seminars/fetchAllSeminars');
+  created() {
+    console.log(this);
+    this.fetchAllListeners();
+    this.fetchAllSeminars();
   },
 };
 </script>
 
 <style scoped>
-
+  .input-text-field {
+    margin: 10px 0;
+  }
 </style>

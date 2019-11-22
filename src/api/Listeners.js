@@ -1,27 +1,27 @@
 import Base from './Base';
 
-export default class UsersApi extends Base {
-  getUsers(options) {
+export default class ListenersApi extends Base {
+  getListeners(options) {
     return this.apiClient.post('listeners', options);
   }
 
-  getUser(id) {
+  getListener(id) {
     return this.apiClient.get(`listeners/${id}`);
   }
 
-  createUser(newListener) {
+  createListener(newListener) {
     return this.apiClient.post('listeners/create', newListener);
   }
 
-  registerUser(listener) {
+  registerListener(listener) {
     return this.apiClient.post('listeners/register', listener);
   }
 
-  editUser(id, editedListener) {
+  editListener(id, editedListener) {
     return this.apiClient.put(`listeners/${id}`, editedListener);
   }
 
-  deleteUser(id) {
+  deleteListener(id) {
     return this.apiClient.delete(`listeners/${id}`);
   }
 }

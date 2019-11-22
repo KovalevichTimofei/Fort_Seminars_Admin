@@ -13,6 +13,13 @@ const stateObj = {
   deleteFailed: false,
 };
 
+const getters = {
+  preachersOptions: state => state.preachers.map(preacher => ({
+    value: preacher.id,
+    label: preacher.ifo,
+  })),
+};
+
 export const FETCH_PREACHER_START = 'fetchPreacherStart';
 export const FETCH_PREACHER_SUCCESS = 'fetchPreacherSuccess';
 export const FETCH_PREACHER_FAIL = 'fetchPreacherFail';
@@ -65,7 +72,7 @@ function deletePreacher({ commit }, id) {
   commit(DELETE_PREACHER_START);
   return api.preachers.deletePreacher(id)
     .then(data => commit(DELETE_PREACHER_SUCCESS, data))
-    .catch(() => commit(DELETE_PREACHER_FAIL));
+    .catch(err => throw new Error(err));
 }
 
 const actions = {
@@ -82,7 +89,6 @@ const mutations = {
     state.loadingFailed = false;
   },
   fetchPreacherSuccess(state, data) {
-    console.log(data);
     state.preacher = data || {};
     state.loading = false;
   },
@@ -124,20 +130,24 @@ const mutations = {
   deletePreacherStart(state) {
     state.deleting = true;
     state.deleteFailed = false;
+    state.deleteSuccess = false;
   },
   deletePreacherSuccess(state, data) {
     if (data) state.preachers = state.preachers.filter(preacher => preacher.id !== data.id);
     state.deleting = false;
+    state.deleteSuccess = true;
   },
   deletePreacherFail(state) {
     state.deleting = false;
     state.deleteFailed = true;
+    state.deleteSuccess = false;
   },
 };
 
 export default {
   namespaced: true,
   state: stateObj,
+  getters,
   actions,
   mutations,
 };

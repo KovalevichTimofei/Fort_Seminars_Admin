@@ -2,9 +2,9 @@
   <q-page class="flex">
     <Table
       :columns="columns"
-      :data="lessonsList"
+      :data="lessons"
       row_key="id"
-      :pagination.sync=pagination
+      :pagination.sync="pagination"
       :selectedIds.sync="selectedIds"
       @show-create-modal="showCreateModal"
       @show-edit-modal="showEditModal"
@@ -50,7 +50,7 @@
           <q-select
             outlined
             v-model="seminarId"
-            :options="seminarsList"
+            :options="seminarsOptions"
             label="Выбор семинара"
             class="input-text-field"
             style="width:300px;"
@@ -79,9 +79,10 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 import Table from '../components/Table';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
+import notificationsOptions from '../mixins/notificationsOptions';
 
 export default {
   name: 'Lessons',
@@ -89,6 +90,7 @@ export default {
     Table,
     ConfirmDeleteModal,
   },
+  mixins: [notificationsOptions],
   data() {
     return {
       columns: [
@@ -138,16 +140,19 @@ export default {
     };
   },
   computed: {
-    ...mapState({
-      seminarsList: state => state.seminars.seminars.map(seminar => ({
-        value: seminar.id,
-        label: seminar.title,
-      })),
-      lessonsList: state => state.lessons.lessonsList,
-      loading: state => state.lessons.loading,
-    }),
+    ...mapState('lessons', ['lessons', 'loading']),
+    ...mapGetters('seminars', ['seminarsOptions']),
   },
   methods: {
+    ...mapActions('lessons', [
+      'fetchAllLessons',
+      'createLesson',
+      'editLesson',
+      'deleteLesson',
+    ]),
+    ...mapActions('seminars', [
+      'fetchAllSeminars',
+    ]),
     openConfirmDeleteModal() {
       this.isConfirmDeleteModalOpen = true;
     },
@@ -155,8 +160,7 @@ export default {
       this.isCreateModalOpen = true;
     },
     async showEditModal(id) {
-      const lesson = this.lessonsList.find(item => item.id === id);
-      console.log(lesson);
+      const lesson = this.lessons.find(item => item.id === id);
 
       this.id = lesson.id;
       this.info = lesson.info;
@@ -169,8 +173,17 @@ export default {
       this.isCreateModalOpen = true;
     },
     deleteLessons() {
-      console.log(this.selectedIds);
-      this.selectedIds.forEach(item => this.$store.dispatch('lessons/deleteLesson', item.id));
+      const promises = this.selectedIds.map(item => this.deleteLesson(item.id));
+
+      const dismiss = this.showNotif('pendingMessage', 'Удаление...');
+
+      this.notifyAfterActionsSequence(
+        promises,
+        dismiss,
+        'Удалено успешно!',
+        'Не удаётся удалить!',
+      );
+
       this.selectedIds = [];
     },
     async saveLesson() {
@@ -178,14 +191,30 @@ export default {
         id, info, date, partNumb, seminarId,
       } = this;
 
+      const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
+
       if (this.editingMode) {
-        await this.$store.dispatch('lessons/editLesson', {
+        await this.editLesson({
           id, info, date, part_numb: partNumb, seminar_id: seminarId.value,
-        });
+        })
+          .then(() => {
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          })
+          .finally(() => dismiss());
       } else {
-        await this.$store.dispatch('lessons/createLesson', {
+        await this.createLesson({
           info, date, part_numb: partNumb, seminar_id: seminarId.value,
-        });
+        })
+          .then(() => {
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          })
+          .finally(() => dismiss());
       }
       this.clearInputs();
     },
@@ -200,9 +229,9 @@ export default {
       this.selectedIds = [];
     },
   },
-  beforeCreate() {
-    this.$store.dispatch('lessons/fetchAllLessons');
-    this.$store.dispatch('seminars/fetchAllSeminars');
+  created() {
+    this.fetchAllLessons();
+    this.fetchAllSeminars();
   },
 };
 </script>

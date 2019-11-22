@@ -4,7 +4,7 @@ import Vuex from 'vuex';
 import seminars from './modules/seminars';
 import preachers from './modules/preachers';
 import lessons from './modules/lessons';
-import listeners from './modules/users';
+import listeners from './modules/listeners';
 
 import createLogger from '../plugins/logger';
 

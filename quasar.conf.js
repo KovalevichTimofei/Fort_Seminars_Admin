@@ -81,6 +81,7 @@ module.exports = function (ctx) {
         'QVideo',
         'QDate',
         'QPopupProxy',
+        'QSpinnerHourglass',
       ],
 
       directives: [
@@ -89,7 +90,9 @@ module.exports = function (ctx) {
       ],
 
       // Quasar plugins
-      plugins: [],
+      plugins: [
+        'Notify',
+      ],
     },
 
     // https://quasar.dev/quasar-cli/cli-documentation/supporting-ie

@@ -2,7 +2,7 @@
   <q-page class="flex">
     <Table
       :columns="columns"
-      :data="preachersList"
+      :data="preachers"
       row_key="id"
       :pagination.sync=pagination
       :selectedIds.sync="selectedIds"
@@ -66,9 +66,12 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { createNamespacedHelpers } from 'vuex';
 import Table from '../components/Table';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
+import notificationsOptions from '../mixins/notificationsOptions';
+
+const { mapState, mapActions } = createNamespacedHelpers('preachers');
 
 export default {
   name: 'Preachers',
@@ -76,6 +79,7 @@ export default {
     Table,
     ConfirmDeleteModal,
   },
+  mixins: [notificationsOptions],
   data() {
     return {
       columns: [
@@ -116,11 +120,7 @@ export default {
     };
   },
   computed: {
-    ...mapState({
-      preachersList: state => state.preachers.preachers,
-      preacher: state => state.preachers.preacher,
-      loading: state => state.preachers.loading,
-    }),
+    ...mapState(['preachers', 'preacher', 'loading']),
     ifo: {
       get() {
         return `${this.name} ${this.surname}`;
@@ -131,6 +131,13 @@ export default {
     },
   },
   methods: {
+    ...mapActions([
+      'fetchCurrentPreacher',
+      'deletePreacher',
+      'editPreacher',
+      'createPreacher',
+      'fetchAllPreachers',
+    ]),
     openConfirmDeleteModal() {
       this.isConfirmDeleteModalOpen = true;
     },
@@ -138,7 +145,7 @@ export default {
       this.isCreateModalOpen = true;
     },
     async showEditModal(id) {
-      await this.$store.dispatch('preachers/fetchCurrentPreacher', id);
+      await this.fetchCurrentPreacher(id);
 
       this.ifo = this.preacher.ifo;
       this.info = this.preacher.info;
@@ -148,7 +155,17 @@ export default {
       this.isCreateModalOpen = true;
     },
     deletePreachers() {
-      this.selectedIds.forEach(item => this.$store.dispatch('preachers/deletePreacher', item.id));
+      const promises = this.selectedIds.map(item => this.deletePreacher(item.id));
+
+      const dismiss = this.showNotif('pendingMessage', 'Удаление...');
+
+      this.notifyAfterActionsSequence(
+        promises,
+        dismiss,
+        'Удалено успешно!',
+        'Не удаётся удалить!',
+      );
+
       this.selectedIds = [];
     },
     async savePreacher() {
@@ -156,20 +173,37 @@ export default {
         ifo, photoUrl, info,
       } = this;
 
+      const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
+
       if (this.editingMode) {
-        await this.$store.dispatch('preachers/editPreacher', {
+        this.editPreacher({
           id: this.preacher.id,
           ifo,
           info,
           photo_url: photoUrl,
-        });
+        })
+          .then(() => {
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          })
+          .finally(() => dismiss());
       } else {
-        await this.$store.dispatch('preachers/createPreacher', {
+        this.createPreacher({
           ifo,
           info,
           photo_url: photoUrl,
-        });
+        })
+          .then(() => {
+            this.showNotif('successMessage', 'Сохранено!');
+          })
+          .catch(() => {
+            this.showNotif('failMessage', 'Сохранить не удаётся!');
+          })
+          .finally(() => dismiss());
       }
+
       this.clearInputs();
     },
     clearInputs() {
@@ -182,9 +216,10 @@ export default {
       this.selectedIds = [];
     },
   },
-  beforeCreate() {
-    this.$store.dispatch('preachers/fetchAllPreachers');
+  created() {
+    this.fetchAllPreachers();
   },
+
 };
 </script>
 
