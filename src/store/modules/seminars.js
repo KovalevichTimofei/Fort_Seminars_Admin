@@ -1,5 +1,4 @@
 import api from '../../apiSingleton';
-import { DELETE_LISTENER_FAIL } from './listeners';
 
 const stateObj = {
   seminars: [],
