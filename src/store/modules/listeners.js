@@ -43,7 +43,10 @@ function createListener({ commit }, options) {
   commit(CREATE_LISTENER_START);
   return api.listeners.createListener(options)
     .then(data => commit(CREATE_LISTENER_SUCCESS, data))
-    .catch(() => commit(CREATE_LISTENER_FAIL));
+    .catch((err) => {
+      commit(CREATE_LISTENER_FAIL);
+      throw new Error(err);
+    });
 }
 
 export const EDIT_LISTENER_START = 'editListenerStart';
@@ -54,7 +57,10 @@ function editListener({ commit }, options) {
   commit(EDIT_LISTENER_START);
   return api.listeners.editListener(options.id, options)
     .then(data => commit(EDIT_LISTENER_SUCCESS, data))
-    .catch(() => commit(EDIT_LISTENER_FAIL));
+    .catch((err) => {
+      commit(EDIT_LISTENER_FAIL);
+      throw new Error(err);
+    });
 }
 
 export const DELETE_LISTENER_START = 'deleteListenerStart';
@@ -65,7 +71,10 @@ function deleteListener({ commit }, id) {
   commit(DELETE_LISTENER_START);
   return api.listeners.deleteListener(id)
     .then(data => commit(DELETE_LISTENER_SUCCESS, data))
-    .catch(() => commit(DELETE_LISTENER_FAIL));
+    .catch((err) => {
+      commit(DELETE_LISTENER_FAIL);
+      throw new Error(err);
+    });
 }
 
 const actions = {

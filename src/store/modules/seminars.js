@@ -50,7 +50,10 @@ function createSeminar({ commit }, options) {
   commit(CREATE_SEMINAR_START);
   return api.seminars.createSeminar(options)
     .then(data => commit(CREATE_SEMINAR_SUCCESS, data))
-    .catch(() => commit(CREATE_SEMINAR_FAIL));
+    .catch((err) => {
+      commit(CREATE_SEMINAR_FAIL);
+      throw new Error(err);
+    });
 }
 
 export const EDIT_SEMINAR_START = 'editSeminarStart';
@@ -61,7 +64,10 @@ function editSeminar({ commit }, options) {
   commit(EDIT_SEMINAR_START);
   return api.seminars.editSeminar(options.seminar.id, options)
     .then(data => commit(EDIT_SEMINAR_SUCCESS, data))
-    .catch(() => commit(EDIT_SEMINAR_FAIL));
+    .catch((err) => {
+      commit(EDIT_SEMINAR_FAIL);
+      throw new Error(err);
+    });
 }
 
 export const DELETE_SEMINAR_START = 'deleteSeminarStart';
@@ -72,7 +78,10 @@ function deleteSeminar({ commit }, id) {
   commit(DELETE_SEMINAR_START);
   return api.seminars.deleteSeminar(id)
     .then(data => commit(DELETE_SEMINAR_SUCCESS, data))
-    .catch(() => commit(DELETE_SEMINAR_FAIL));
+    .catch((err) => {
+      commit(DELETE_SEMINAR_FAIL);
+      throw new Error(err);
+    });
 }
 
 const actions = {
