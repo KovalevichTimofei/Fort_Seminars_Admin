@@ -1,11 +1,23 @@
 <template>
-  <q-page class="flex column">
+  <q-page
+    v-if="listeners && !listeners.length && loading"
+    class="flex justify-center flex-center"
+  >
+    <QSpinnerHourglass
+      size="10em"
+      color="primary"
+      class="center"
+    />
+  </q-page>
+  <q-page v-else class="flex column">
     <Autocomplete
       :stringOptions="seminarsOptions"
       @autocomplete-filter="filterSeminarsList"
       @make-filter="filterListeners"
     />
     <Table
+      :loading="loading"
+      noDataLabel="Не удалось получить список слушателей..."
       :columns="columns"
       :data="listeners"
       row_key="id"

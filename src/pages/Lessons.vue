@@ -1,6 +1,18 @@
 <template>
-  <q-page class="flex">
+  <q-page
+    v-if="lessons && !lessons.length && loading"
+    class="flex justify-center flex-center"
+  >
+    <QSpinnerHourglass
+      size="10em"
+      color="primary"
+      class="center"
+    />
+  </q-page>
+  <q-page v-else class="flex">
     <Table
+      :loading="loading"
+      noDataLabel="Не удалось получить список уроков..."
       :columns="columns"
       :data="lessons"
       row_key="id"

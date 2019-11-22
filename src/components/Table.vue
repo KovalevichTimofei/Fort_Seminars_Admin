@@ -2,6 +2,8 @@
   <div class="q-pa-md">
     <q-table
       virtual-scroll
+      :loading="loading"
+      :no-data-label="noDataLabel"
       :data="data"
       :columns="columns"
       :row-key="row_key"
@@ -63,7 +65,13 @@
 export default {
   name: 'Table',
   props: [
-    'columns', 'data', 'row_key', 'pagination', 'selectedIds',
+    'columns',
+    'data',
+    'row_key',
+    'pagination',
+    'selectedIds',
+    'loading',
+    'noDataLabel',
   ],
   computed: {
     selectedArr: {
