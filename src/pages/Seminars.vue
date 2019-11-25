@@ -56,10 +56,12 @@
               <q-input
                 clearable
                 outlined
+                ref="title"
                 class="input-text-field"
                 clear-icon="close"
                 v-model="title"
-                label="Название"
+                label="Название*"
+                :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                 style="width:300px"
               />
               <q-input
@@ -104,7 +106,8 @@
                       type="text"
                       class="input-text-field"
                       clear-icon="close"
-                      label="Название"
+                      label="Название*"
+                      :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                       @input="lessonDataInput($event, 'info', i)"
                       :value="lessonsListForCurSeminar[i-1].info"
                       style="width:300px"
@@ -112,9 +115,10 @@
                     <q-input
                       outlined
                       @input="lessonDataInput($event, 'date', i)"
+                      label="Дата проведения*"
                       mask="date"
                       :value="lessonsListForCurSeminar[i-1].date"
-                      :rules="['date']"
+                      :rules="['date', val => !!val || 'Это поле обязательно для заполнения.']"
                       style="width:300px"
                     >
                       <template v-slot:append>
@@ -191,19 +195,23 @@
               <q-input
                 clearable
                 outlined
+                ref="name"
                 class="input-text-field"
                 clear-icon="close"
                 v-model="name"
-                label="Имя"
+                label="Имя*"
+                :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                 style="width:300px"
               />
               <q-input
                 clearable
                 outlined
+                ref="surname"
                 class="input-text-field"
                 clear-icon="close"
                 v-model="surname"
-                label="Фамилия"
+                label="Фамилия*"
+                :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                 style="width:300px"
               />
               <q-input
@@ -251,7 +259,9 @@
                     <q-input
                       outlined
                       disabled
-                      label="Название"
+                      ref="titleConclusion"
+                      label="Название*"
+                      :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                       v-model="title"
                       style="width:100%"
                     >
@@ -301,7 +311,9 @@
                     <q-input
                       outlined
                       disabled
-                      label="Имя, фамилия"
+                      ref="ifoConclusion"
+                      label="Имя, фамилия*"
+                      :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                       v-model="ifo"
                       style="width:100%"
                       class="q-my-md"
@@ -501,6 +513,10 @@ export default {
           info: preacherInfo,
         };
 
+      if (this.detectNotValidInputs()) {
+        return;
+      }
+
       const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
 
       if (this.editingMode) {
@@ -624,6 +640,23 @@ export default {
       if (value === 'create') {
         this.preacherId = {};
       }
+    },
+    detectNotValidInputs() {
+      if (!this.lessonsListForCurSeminar.some(el => !el.info || !el.date)) {
+        return true;
+      }
+
+      this.$refs.name.validate();
+      this.$refs.surname.validate();
+      this.$refs.title.validate();
+      this.$refs.titleConclusion.validate();
+      this.$refs.ifoConclusion.validate();
+
+      return this.$refs.name.hasError
+        || this.$refs.surname.hasError
+        || this.$refs.title.hasError
+        || this.$refs.titleConclusion.hasError
+        || this.$refs.ifoConclusion.hasError;
     },
     clearInputs() {
       this.step = 1;
