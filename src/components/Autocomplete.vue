@@ -35,7 +35,9 @@
 <script>
 export default {
   name: 'Autocomplete',
-  props: ['stringOptions'],
+  props: {
+    stringOptions: Array,
+  },
   data() {
     return {
       model: null,
@@ -45,7 +47,6 @@ export default {
   methods: {
     filterFn(val, update) {
       update(() => {
-        // console.log('update', val);
         this.$emit('autocomplete-filter', val);
       });
     },

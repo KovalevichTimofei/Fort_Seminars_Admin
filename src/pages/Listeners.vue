@@ -105,7 +105,6 @@ export default {
           label: 'Имя',
           field: 'ifo',
           align: 'center',
-          // sortable: true,
         },
         {
           name: 'email',
@@ -113,7 +112,6 @@ export default {
           label: 'Email',
           field: 'email',
           align: 'center',
-          // sortable: true,
         },
       ],
       selectedIds: [],
@@ -259,7 +257,6 @@ export default {
     },
   },
   created() {
-    console.log(this);
     this.fetchAllListeners();
     this.fetchAllSeminars();
   },

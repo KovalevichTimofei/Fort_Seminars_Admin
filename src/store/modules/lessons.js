@@ -71,7 +71,6 @@ export const DELETE_LESSON_SUCCESS = 'deleteLessonSuccess';
 export const DELETE_LESSON_FAIL = 'deleteLessonFail';
 
 function deleteLesson({ commit }, id) {
-  console.log(id);
   commit(DELETE_LESSON_START);
   return api.lessons.deleteLesson(id)
     .then(data => commit(DELETE_LESSON_SUCCESS, data))
