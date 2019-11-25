@@ -47,7 +47,6 @@ export default {
   methods: {
     filterFn(val, update) {
       update(() => {
-        // console.log('update', val);
         this.$emit('autocomplete-filter', val);
       });
     },

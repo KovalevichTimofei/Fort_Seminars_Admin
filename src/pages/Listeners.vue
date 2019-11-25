@@ -236,7 +236,6 @@ export default {
     },
   },
   created() {
-    console.log(this);
     this.fetchAllListeners();
     this.fetchAllSeminars();
   },
