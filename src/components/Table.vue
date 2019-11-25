@@ -64,15 +64,15 @@
 <script>
 export default {
   name: 'Table',
-  props: [
-    'columns',
-    'data',
-    'row_key',
-    'pagination',
-    'selectedIds',
-    'loading',
-    'noDataLabel',
-  ],
+  props: {
+    columns: Array,
+    data: Array,
+    row_key: String,
+    pagination: Object,
+    selectedIds: Array,
+    loading: Boolean,
+    noDataLabel: String,
+  },
   computed: {
     selectedArr: {
       get() {

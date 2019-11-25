@@ -21,7 +21,10 @@ export default {
     prop: 'isOpen',
     event: 'input',
   },
-  props: ['text', 'isOpen'],
+  props: {
+    text: String,
+    isOpen: Boolean,
+  },
   computed: {
     isModalOpen: {
       get() {

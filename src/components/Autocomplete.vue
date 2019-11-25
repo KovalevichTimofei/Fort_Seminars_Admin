@@ -35,7 +35,9 @@
 <script>
 export default {
   name: 'Autocomplete',
-  props: ['stringOptions'],
+  props: {
+    stringOptions: Array,
+  },
   data() {
     return {
       model: null,
