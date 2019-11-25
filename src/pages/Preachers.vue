@@ -17,21 +17,25 @@
             Заполните данные о проповеднике:
           </div>
           <q-input
+            ref="name"
             clearable
             outlined
             class="input-text-field"
             clear-icon="close"
             v-model="name"
-            label="Имя"
+            label="Имя*"
+            :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
             style="width:300px"
           />
           <q-input
+            ref="surname"
             clearable
             outlined
             class="input-text-field"
             clear-icon="close"
             v-model="surname"
-            label="Фамилия"
+            label="Фамилия*"
+            :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
             style="width:300px"
           />
           <q-input
@@ -53,7 +57,7 @@
         </q-card-section>
         <q-card-actions align="right">
           <q-btn color="primary" v-close-popup>Отмена</q-btn>
-          <q-btn color="primary" @click="savePreacher" v-close-popup>Сохранить</q-btn>
+          <q-btn color="primary" ref="modal" @click="savePreacher">Сохранить</q-btn>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -173,6 +177,10 @@ export default {
         ifo, photoUrl, info,
       } = this;
 
+      if (this.detectNotValidInputs()) {
+        return;
+      }
+
       const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
 
       if (this.editingMode) {
@@ -204,7 +212,14 @@ export default {
           .finally(() => dismiss());
       }
 
+      this.isCreateModalOpen = false;
       this.clearInputs();
+    },
+    detectNotValidInputs() {
+      this.$refs.name.validate();
+      this.$refs.surname.validate();
+
+      return this.$refs.name.hasError || this.$refs.surname.hasError;
     },
     clearInputs() {
       this.editingMode = false;

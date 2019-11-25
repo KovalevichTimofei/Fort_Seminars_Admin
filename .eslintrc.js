@@ -53,7 +53,7 @@ module.exports = {
     'arrow-body-style': 'warn',
     'max-len': 'warn',
     'no-plusplus': 'off',
-    'linebreak-style': ["error", "windows"],
+    'linebreak-style': ["off", "windows"],
     // allow console.log during development only
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     // allow debugger during development only
