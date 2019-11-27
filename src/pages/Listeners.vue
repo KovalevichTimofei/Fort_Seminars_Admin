@@ -241,7 +241,7 @@ export default {
     detectNotValidInputs() {
       this.$refs.name.validate();
       this.$refs.surname.validate();
-      this.$refs.surname.email();
+      this.$refs.email.validate();
 
       return this.$refs.name.hasError
         || this.$refs.surname.hasError

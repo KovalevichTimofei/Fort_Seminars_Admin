@@ -77,7 +77,7 @@ export default class ApiClient {
         init.body = JSON.stringify(body);
       }
     }
-    console.log(`${this.prefix}/${url}`, init);
+    // console.log(`${this.prefix}/${url}`, init);
 
     return fetch(`${this.prefix}/${url}`, init).then((res) => {
       ({ status } = res);
@@ -90,7 +90,7 @@ export default class ApiClient {
     }).then((data) => {
       if (status >= 400 && status !== 422) {
         if (status === 404) {
-          console.log('Not found');
+          // console.log('Not found');
         }
         if (data.message) {
           throw new Error(data.message);

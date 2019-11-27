@@ -56,7 +56,6 @@
               <q-input
                 clearable
                 outlined
-                ref="title"
                 class="input-text-field"
                 clear-icon="close"
                 v-model="title"
@@ -195,7 +194,6 @@
               <q-input
                 clearable
                 outlined
-                ref="name"
                 class="input-text-field"
                 clear-icon="close"
                 v-model="name"
@@ -206,7 +204,6 @@
               <q-input
                 clearable
                 outlined
-                ref="surname"
                 class="input-text-field"
                 clear-icon="close"
                 v-model="surname"
@@ -259,7 +256,6 @@
                     <q-input
                       outlined
                       disabled
-                      ref="titleConclusion"
                       label="Название*"
                       :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                       v-model="title"
@@ -311,7 +307,6 @@
                     <q-input
                       outlined
                       disabled
-                      ref="ifoConclusion"
                       label="Имя, фамилия*"
                       :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                       v-model="ifo"
@@ -642,21 +637,18 @@ export default {
       }
     },
     detectNotValidInputs() {
-      if (!this.lessonsListForCurSeminar.some(el => !el.info || !el.date)) {
+      const {
+        lessonsListForCurSeminar,
+        ifo,
+        title,
+        preacherId,
+      } = this;
+
+      if (lessonsListForCurSeminar.some(el => !el.info || !el.date)) {
         return true;
       }
 
-      this.$refs.name.validate();
-      this.$refs.surname.validate();
-      this.$refs.title.validate();
-      this.$refs.titleConclusion.validate();
-      this.$refs.ifoConclusion.validate();
-
-      return this.$refs.name.hasError
-        || this.$refs.surname.hasError
-        || this.$refs.title.hasError
-        || this.$refs.titleConclusion.hasError
-        || this.$refs.ifoConclusion.hasError;
+      return !(title && (preacherId || ifo));
     },
     clearInputs() {
       this.step = 1;

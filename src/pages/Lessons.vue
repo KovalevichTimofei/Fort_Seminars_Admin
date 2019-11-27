@@ -83,7 +83,7 @@
           />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn color="primary" v-close-popup>Отмена</q-btn>
+          <q-btn color="primary" @click="clearInputs" v-close-popup>Отмена</q-btn>
           <q-btn color="primary" @click="saveLesson">Сохранить</q-btn>
         </q-card-actions>
       </q-card>
@@ -177,15 +177,19 @@ export default {
     showCreateModal() {
       this.isCreateModalOpen = true;
     },
-    async showEditModal(id) {
+    showEditModal(id) {
       const lesson = this.lessons.find(item => item.id === id);
 
       this.id = lesson.id;
       this.info = lesson.info;
       this.date = lesson.date;
       this.partNumb = lesson.part_numb;
+      console.log(lesson.seminar_id);
+      console.log(lesson.seminar);
       this.seminarId.value = lesson.seminar_id;
       this.seminarId.label = lesson.seminar;
+
+      console.log(this.seminarId);
 
       this.editingMode = true;
       this.isCreateModalOpen = true;
@@ -217,7 +221,7 @@ export default {
 
       if (this.editingMode) {
         await this.editLesson({
-          id, info, date, part_numb: partNumb, seminar_id: seminarId.value,
+          id, info, date, part_numb: partNumb, seminar_id: seminarId.value, seminar: seminarId.label,
         })
           .then(() => {
             this.showNotif('successMessage', 'Сохранено!');
@@ -228,7 +232,7 @@ export default {
           .finally(() => dismiss());
       } else {
         await this.createLesson({
-          info, date, part_numb: partNumb, seminar_id: seminarId.value,
+          info, date, part_numb: partNumb, seminar_id: seminarId.value, seminar: seminarId.label,
         })
           .then(() => {
             this.showNotif('successMessage', 'Сохранено!');
