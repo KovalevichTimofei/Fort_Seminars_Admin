@@ -65,7 +65,7 @@
           </q-input>
           <q-select
             outlined
-            v-model="seminarId"
+            v-model="selectedSeminarOption"
             :options="seminarsOptions"
             label="Выбор семинара"
             class="input-text-field"
@@ -153,7 +153,7 @@ export default {
       info: '',
       date: '',
       partNumb: '',
-      seminarId: {},
+      selectedSeminarOption: {},
       selectedIds: [],
     };
   },
@@ -185,8 +185,8 @@ export default {
       this.date = lesson.date;
       this.partNumb = lesson.part_numb;
 
-      this.seminarId.value = lesson.seminar_id;
-      this.seminarId.label = lesson.seminar;
+      this.selectedSeminarOption.value = lesson.seminar_id;
+      this.selectedSeminarOption.label = lesson.seminar;
 
       this.editingMode = true;
       this.isCreateModalOpen = true;
@@ -207,7 +207,7 @@ export default {
     },
     async saveLesson() {
       const {
-        id, info, date, partNumb, seminarId,
+        id, info, date, partNumb, selectedSeminarOption,
       } = this;
 
       if (this.detectNotValidInputs()) {
@@ -217,8 +217,8 @@ export default {
       const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
 
       if (this.editingMode) {
-        await this.editLesson({
-          id, info, date, part_numb: partNumb, seminar_id: seminarId.value, seminar: seminarId.label,
+        this.editLesson({
+          id, info, date, part_numb: partNumb, seminar_id: selectedSeminarOption.value, seminar: selectedSeminarOption.label,
         })
           .then(() => {
             this.showNotif('successMessage', 'Сохранено!');
@@ -228,8 +228,8 @@ export default {
           })
           .finally(() => dismiss());
       } else {
-        await this.createLesson({
-          info, date, part_numb: partNumb, seminar_id: seminarId.value, seminar: seminarId.label,
+        this.createLesson({
+          info, date, part_numb: partNumb, seminar_id: selectedSeminarOption.value, seminar: selectedSeminarOption.label,
         })
           .then(() => {
             this.showNotif('successMessage', 'Сохранено!');
@@ -244,7 +244,7 @@ export default {
       this.clearInputs();
     },
     detectNotValidInputs() {
-      if (!this.seminarId.value) {
+      if (!this.selectedSeminarOption.value) {
         return true;
       }
 
@@ -262,7 +262,7 @@ export default {
       this.info = '';
       this.date = '';
       this.partNumb = '';
-      this.seminarId = {};
+      this.selectedSeminarOption = {};
       this.lesson = {};
       this.selectedIds = [];
     },

@@ -177,7 +177,7 @@
               >
                 <q-select
                   outlined
-                  v-model="preacherId"
+                  v-model="selectedPreacherOption"
                   :options="preachersOptions"
                   label="Выбор проповедника"
                   :hint="createPreacherHint"
@@ -428,7 +428,7 @@ export default {
       tab: 'choose',
       title: '',
       inviteLink: '',
-      preacherId: {},
+      selectedPreacherOption: {},
       name: '',
       surname: '',
       photoUrl: '',
@@ -490,7 +490,7 @@ export default {
       'fetchLessonsBySeminar',
     ]),
     readPreacherInfo() {
-      const preacher = this.preachers.find(item => item.id === this.preacherId.value);
+      const preacher = this.preachers.find(item => item.id === this.selectedPreacherOption.value);
       this.ifo = preacher.ifo;
       this.photoUrl = preacher.photo_url;
       this.preacherInfo = preacher.preacherInfo;
@@ -500,8 +500,8 @@ export default {
         ifo, photoUrl, preacherInfo, title, inviteLink,
       } = this;
 
-      const preacher = this.preacherId.value
-        ? { id: this.preacherId.value }
+      const preacher = this.selectedPreacherOption.value
+        ? { id: this.selectedPreacherOption.value }
         : {
           ifo,
           photoUrl,
@@ -515,7 +515,7 @@ export default {
       const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
 
       if (this.editingMode) {
-        await this.editSeminar({
+        this.editSeminar({
           seminar: {
             ...this.seminar,
             title,
@@ -542,7 +542,7 @@ export default {
       } else {
         const seminarId = generateId();
 
-        await this.createSeminar({
+        this.createSeminar({
           seminar: {
             id: seminarId,
             title,
@@ -580,8 +580,8 @@ export default {
       this.title = this.seminar.title;
       this.inviteLink = this.seminar.invite_link;
 
-      this.preacherId.value = this.preacher.id;
-      this.preacherId.label = this.preacher.ifo;
+      this.selectedPreacherOption.value = this.preacher.id;
+      this.selectedPreacherOption.label = this.preacher.ifo;
 
       this.lessonsNumber = this.lessons.length;
       this.lessonsListForCurSeminar = this.lessons;
@@ -633,7 +633,7 @@ export default {
     },
     tabChanged(value) {
       if (value === 'create') {
-        this.preacherId = {};
+        this.selectedPreacherOption = {};
       }
     },
     detectNotValidInputs() {
@@ -641,14 +641,14 @@ export default {
         lessonsListForCurSeminar,
         ifo,
         title,
-        preacherId,
+        selectedPreacherOption,
       } = this;
 
       if (lessonsListForCurSeminar.some(el => !el.info || !el.date)) {
         return true;
       }
 
-      return !(title && (preacherId || ifo));
+      return !(title && (selectedPreacherOption || ifo));
     },
     clearInputs() {
       this.step = 1;
@@ -656,7 +656,7 @@ export default {
       this.tab = 'choose';
       this.title = '';
       this.inviteLink = '';
-      this.preacherId = {};
+      this.selectedPreacherOption = {};
       this.name = '';
       this.surname = '';
       this.photoUrl = '';

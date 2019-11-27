@@ -209,7 +209,7 @@ export default {
       const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
 
       if (this.editingMode) {
-        await this.editListener({
+        this.editListener({
           id,
           ifo,
           email,
@@ -222,7 +222,7 @@ export default {
           })
           .finally(() => dismiss());
       } else {
-        await this.createListener({
+        this.createListener({
           ifo,
           email,
         })
