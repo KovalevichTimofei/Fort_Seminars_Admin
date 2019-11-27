@@ -197,7 +197,7 @@ export default {
 
       this.selectedIds = [];
     },
-    async saveListener() {
+    saveListener() {
       const {
         id, ifo, email,
       } = this;

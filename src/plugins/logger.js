@@ -1,5 +1,3 @@
-// Credits: borrowed code from fcomb/redux-logger
-
 import { deepCopy } from '../util';
 
 export default function createLogger({
@@ -27,11 +25,10 @@ export default function createLogger({
           ? logger.groupCollapsed
           : logger.group;
 
-        // render
         try {
           startMessage.call(logger, message);
         } catch (e) {
-          // console.log(message);
+          console.log(message);
         }
 
         logger.log('%c prev state', 'color: #9E9E9E; font-weight: bold', transformer(prevState));

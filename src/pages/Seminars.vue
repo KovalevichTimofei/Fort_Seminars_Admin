@@ -495,7 +495,7 @@ export default {
       this.photoUrl = preacher.photo_url;
       this.preacherInfo = preacher.preacherInfo;
     },
-    async saveSeminar() {
+    saveSeminar() {
       const {
         ifo, photoUrl, preacherInfo, title, inviteLink,
       } = this;

@@ -205,7 +205,7 @@ export default {
 
       this.selectedIds = [];
     },
-    async saveLesson() {
+    saveLesson() {
       const {
         id, info, date, partNumb, selectedSeminarOption,
       } = this;
@@ -218,7 +218,12 @@ export default {
 
       if (this.editingMode) {
         this.editLesson({
-          id, info, date, part_numb: partNumb, seminar_id: selectedSeminarOption.value, seminar: selectedSeminarOption.label,
+          id,
+          info,
+          date,
+          part_numb: partNumb,
+          seminar_id: selectedSeminarOption.value,
+          seminar: selectedSeminarOption.label,
         })
           .then(() => {
             this.showNotif('successMessage', 'Сохранено!');
@@ -229,7 +234,11 @@ export default {
           .finally(() => dismiss());
       } else {
         this.createLesson({
-          info, date, part_numb: partNumb, seminar_id: selectedSeminarOption.value, seminar: selectedSeminarOption.label,
+          info,
+          date,
+          part_numb: partNumb,
+          seminar_id: selectedSeminarOption.value,
+          seminar: selectedSeminarOption.label,
         })
           .then(() => {
             this.showNotif('successMessage', 'Сохранено!');
