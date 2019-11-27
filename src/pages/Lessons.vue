@@ -184,12 +184,9 @@ export default {
       this.info = lesson.info;
       this.date = lesson.date;
       this.partNumb = lesson.part_numb;
-      console.log(lesson.seminar_id);
-      console.log(lesson.seminar);
+
       this.seminarId.value = lesson.seminar_id;
       this.seminarId.label = lesson.seminar;
-
-      console.log(this.seminarId);
 
       this.editingMode = true;
       this.isCreateModalOpen = true;
