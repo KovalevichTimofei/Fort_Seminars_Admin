@@ -69,6 +69,10 @@
             :options="seminarsOptions"
             label="Выбор семинара"
             class="input-text-field"
+            option-value="value"
+            option-label="label"
+            emit-value
+            map-options
             style="width:300px;"
             behavior="menu"
           />
@@ -153,7 +157,7 @@ export default {
       info: '',
       date: '',
       partNumb: '',
-      selectedSeminarOption: {},
+      selectedSeminarOption: '',
       selectedIds: [],
     };
   },
@@ -185,8 +189,7 @@ export default {
       this.date = lesson.date;
       this.partNumb = lesson.part_numb;
 
-      this.selectedSeminarOption.value = lesson.seminar_id;
-      this.selectedSeminarOption.label = lesson.seminar;
+      this.selectedSeminarOption = lesson.seminar_id;
 
       this.editingMode = true;
       this.isCreateModalOpen = true;
@@ -222,8 +225,7 @@ export default {
           info,
           date,
           part_numb: partNumb,
-          seminar_id: selectedSeminarOption.value,
-          seminar: selectedSeminarOption.label,
+          seminar_id: selectedSeminarOption,
         })
           .then(() => {
             this.showNotif('successMessage', 'Сохранено!');
@@ -237,8 +239,7 @@ export default {
           info,
           date,
           part_numb: partNumb,
-          seminar_id: selectedSeminarOption.value,
-          seminar: selectedSeminarOption.label,
+          seminar_id: selectedSeminarOption,
         })
           .then(() => {
             this.showNotif('successMessage', 'Сохранено!');
@@ -253,7 +254,7 @@ export default {
       this.clearInputs();
     },
     detectNotValidInputs() {
-      if (!this.selectedSeminarOption.value) {
+      if (!this.selectedSeminarOption) {
         return true;
       }
 
@@ -271,7 +272,7 @@ export default {
       this.info = '';
       this.date = '';
       this.partNumb = '';
-      this.selectedSeminarOption = {};
+      this.selectedSeminarOption = '';
       this.lesson = {};
       this.selectedIds = [];
     },

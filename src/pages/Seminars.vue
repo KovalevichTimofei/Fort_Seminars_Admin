@@ -179,11 +179,15 @@
                   outlined
                   v-model="selectedPreacherOption"
                   :options="preachersOptions"
+                  option-value="value"
+                  option-label="label"
                   label="Выбор проповедника"
                   :hint="createPreacherHint"
                   style="width:300px;"
                   behavior="menu"
                   @input="readPreacherInfo"
+                  emit-value
+                  map-options
                 />
               </div>
             </q-tab-panel>
@@ -428,7 +432,7 @@ export default {
       tab: 'choose',
       title: '',
       inviteLink: '',
-      selectedPreacherOption: {},
+      selectedPreacherOption: '',
       name: '',
       surname: '',
       photoUrl: '',
@@ -490,7 +494,7 @@ export default {
       'fetchLessonsBySeminar',
     ]),
     readPreacherInfo() {
-      const preacher = this.preachers.find(item => item.id === this.selectedPreacherOption.value);
+      const preacher = this.preachers.find(item => item.id === this.selectedPreacherOption);
       this.ifo = preacher.ifo;
       this.photoUrl = preacher.photo_url;
       this.preacherInfo = preacher.preacherInfo;
@@ -500,8 +504,8 @@ export default {
         ifo, photoUrl, preacherInfo, title, inviteLink,
       } = this;
 
-      const preacher = this.selectedPreacherOption.value
-        ? { id: this.selectedPreacherOption.value }
+      const preacher = this.selectedPreacherOption
+        ? { id: this.selectedPreacherOption }
         : {
           ifo,
           photoUrl,
@@ -580,8 +584,7 @@ export default {
       this.title = this.seminar.title;
       this.inviteLink = this.seminar.invite_link;
 
-      this.selectedPreacherOption.value = this.preacher.id;
-      this.selectedPreacherOption.label = this.preacher.ifo;
+      this.selectedPreacherOption = this.preacher.id;
 
       this.lessonsNumber = this.lessons.length;
       this.lessonsListForCurSeminar = this.lessons;
@@ -633,7 +636,7 @@ export default {
     },
     tabChanged(value) {
       if (value === 'create') {
-        this.selectedPreacherOption = {};
+        this.selectedPreacherOption = '';
       }
     },
     detectNotValidInputs() {
@@ -656,7 +659,7 @@ export default {
       this.tab = 'choose';
       this.title = '';
       this.inviteLink = '';
-      this.selectedPreacherOption = {};
+      this.selectedPreacherOption = '';
       this.name = '';
       this.surname = '';
       this.photoUrl = '';
