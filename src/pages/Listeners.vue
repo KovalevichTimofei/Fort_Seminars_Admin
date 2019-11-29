@@ -197,7 +197,7 @@ export default {
 
       this.selectedIds = [];
     },
-    async saveListener() {
+    saveListener() {
       const {
         id, ifo, email,
       } = this;
@@ -209,7 +209,7 @@ export default {
       const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
 
       if (this.editingMode) {
-        await this.editListener({
+        this.editListener({
           id,
           ifo,
           email,
@@ -222,7 +222,7 @@ export default {
           })
           .finally(() => dismiss());
       } else {
-        await this.createListener({
+        this.createListener({
           ifo,
           email,
         })
@@ -241,7 +241,7 @@ export default {
     detectNotValidInputs() {
       this.$refs.name.validate();
       this.$refs.surname.validate();
-      this.$refs.surname.email();
+      this.$refs.email.validate();
 
       return this.$refs.name.hasError
         || this.$refs.surname.hasError

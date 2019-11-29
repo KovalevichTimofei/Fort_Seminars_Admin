@@ -51,8 +51,6 @@ export default class ApiClient {
     let status;
     let init;
 
-    // const token = localStorage.getItem('auth_token');
-
     if (contentType === 'file' || contentType === 'logout' || method === 'get') {
       init = {
         method,
@@ -77,7 +75,6 @@ export default class ApiClient {
         init.body = JSON.stringify(body);
       }
     }
-    console.log(`${this.prefix}/${url}`, init);
 
     return fetch(`${this.prefix}/${url}`, init).then((res) => {
       ({ status } = res);
@@ -98,7 +95,6 @@ export default class ApiClient {
         throw new Error('Bad response from server');
       }
 
-      // 204 No Content --> return status
       if (status === 204) {
         return status;
       }

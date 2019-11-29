@@ -1,5 +1,3 @@
-// Credits: borrowed code from fcomb/redux-logger
-
 import { deepCopy } from '../util';
 
 export default function createLogger({
@@ -27,7 +25,6 @@ export default function createLogger({
           ? logger.groupCollapsed
           : logger.group;
 
-        // render
         try {
           startMessage.call(logger, message);
         } catch (e) {

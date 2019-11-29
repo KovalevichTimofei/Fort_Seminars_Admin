@@ -56,7 +56,6 @@
               <q-input
                 clearable
                 outlined
-                ref="title"
                 class="input-text-field"
                 clear-icon="close"
                 v-model="title"
@@ -178,13 +177,17 @@
               >
                 <q-select
                   outlined
-                  v-model="preacherId"
+                  v-model="selectedPreacherOption"
                   :options="preachersOptions"
+                  option-value="value"
+                  option-label="label"
                   label="Выбор проповедника"
                   :hint="createPreacherHint"
                   style="width:300px;"
                   behavior="menu"
                   @input="readPreacherInfo"
+                  emit-value
+                  map-options
                 />
               </div>
             </q-tab-panel>
@@ -195,7 +198,6 @@
               <q-input
                 clearable
                 outlined
-                ref="name"
                 class="input-text-field"
                 clear-icon="close"
                 v-model="name"
@@ -206,7 +208,6 @@
               <q-input
                 clearable
                 outlined
-                ref="surname"
                 class="input-text-field"
                 clear-icon="close"
                 v-model="surname"
@@ -259,7 +260,6 @@
                     <q-input
                       outlined
                       disabled
-                      ref="titleConclusion"
                       label="Название*"
                       :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                       v-model="title"
@@ -311,7 +311,6 @@
                     <q-input
                       outlined
                       disabled
-                      ref="ifoConclusion"
                       label="Имя, фамилия*"
                       :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                       v-model="ifo"
@@ -433,7 +432,7 @@ export default {
       tab: 'choose',
       title: '',
       inviteLink: '',
-      preacherId: {},
+      selectedPreacherOption: '',
       name: '',
       surname: '',
       photoUrl: '',
@@ -495,18 +494,18 @@ export default {
       'fetchLessonsBySeminar',
     ]),
     readPreacherInfo() {
-      const preacher = this.preachers.find(item => item.id === this.preacherId.value);
+      const preacher = this.preachers.find(item => item.id === this.selectedPreacherOption);
       this.ifo = preacher.ifo;
       this.photoUrl = preacher.photo_url;
       this.preacherInfo = preacher.preacherInfo;
     },
-    async saveSeminar() {
+    saveSeminar() {
       const {
         ifo, photoUrl, preacherInfo, title, inviteLink,
       } = this;
 
-      const preacher = this.preacherId.value
-        ? { id: this.preacherId.value }
+      const preacher = this.selectedPreacherOption
+        ? { id: this.selectedPreacherOption }
         : {
           ifo,
           photoUrl,
@@ -520,7 +519,7 @@ export default {
       const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
 
       if (this.editingMode) {
-        await this.editSeminar({
+        this.editSeminar({
           seminar: {
             ...this.seminar,
             title,
@@ -547,7 +546,7 @@ export default {
       } else {
         const seminarId = generateId();
 
-        await this.createSeminar({
+        this.createSeminar({
           seminar: {
             id: seminarId,
             title,
@@ -585,8 +584,7 @@ export default {
       this.title = this.seminar.title;
       this.inviteLink = this.seminar.invite_link;
 
-      this.preacherId.value = this.preacher.id;
-      this.preacherId.label = this.preacher.ifo;
+      this.selectedPreacherOption = this.preacher.id;
 
       this.lessonsNumber = this.lessons.length;
       this.lessonsListForCurSeminar = this.lessons;
@@ -638,25 +636,22 @@ export default {
     },
     tabChanged(value) {
       if (value === 'create') {
-        this.preacherId = {};
+        this.selectedPreacherOption = '';
       }
     },
     detectNotValidInputs() {
-      if (!this.lessonsListForCurSeminar.some(el => !el.info || !el.date)) {
+      const {
+        lessonsListForCurSeminar,
+        ifo,
+        title,
+        selectedPreacherOption,
+      } = this;
+
+      if (lessonsListForCurSeminar.some(el => !el.info || !el.date)) {
         return true;
       }
 
-      this.$refs.name.validate();
-      this.$refs.surname.validate();
-      this.$refs.title.validate();
-      this.$refs.titleConclusion.validate();
-      this.$refs.ifoConclusion.validate();
-
-      return this.$refs.name.hasError
-        || this.$refs.surname.hasError
-        || this.$refs.title.hasError
-        || this.$refs.titleConclusion.hasError
-        || this.$refs.ifoConclusion.hasError;
+      return !(title && (selectedPreacherOption || ifo));
     },
     clearInputs() {
       this.step = 1;
@@ -664,7 +659,7 @@ export default {
       this.tab = 'choose';
       this.title = '';
       this.inviteLink = '';
-      this.preacherId = {};
+      this.selectedPreacherOption = '';
       this.name = '';
       this.surname = '';
       this.photoUrl = '';

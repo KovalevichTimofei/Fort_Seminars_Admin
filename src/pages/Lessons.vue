@@ -65,10 +65,14 @@
           </q-input>
           <q-select
             outlined
-            v-model="seminarId"
+            v-model="selectedSeminarOption"
             :options="seminarsOptions"
             label="Выбор семинара"
             class="input-text-field"
+            option-value="value"
+            option-label="label"
+            emit-value
+            map-options
             style="width:300px;"
             behavior="menu"
           />
@@ -83,7 +87,7 @@
           />
         </q-card-section>
         <q-card-actions align="right">
-          <q-btn color="primary" v-close-popup>Отмена</q-btn>
+          <q-btn color="primary" @click="clearInputs" v-close-popup>Отмена</q-btn>
           <q-btn color="primary" @click="saveLesson">Сохранить</q-btn>
         </q-card-actions>
       </q-card>
@@ -153,7 +157,7 @@ export default {
       info: '',
       date: '',
       partNumb: '',
-      seminarId: {},
+      selectedSeminarOption: '',
       selectedIds: [],
     };
   },
@@ -177,15 +181,15 @@ export default {
     showCreateModal() {
       this.isCreateModalOpen = true;
     },
-    async showEditModal(id) {
+    showEditModal(id) {
       const lesson = this.lessons.find(item => item.id === id);
 
       this.id = lesson.id;
       this.info = lesson.info;
       this.date = lesson.date;
       this.partNumb = lesson.part_numb;
-      this.seminarId.value = lesson.seminar_id;
-      this.seminarId.label = lesson.seminar;
+
+      this.selectedSeminarOption = lesson.seminar_id;
 
       this.editingMode = true;
       this.isCreateModalOpen = true;
@@ -204,9 +208,9 @@ export default {
 
       this.selectedIds = [];
     },
-    async saveLesson() {
+    saveLesson() {
       const {
-        id, info, date, partNumb, seminarId,
+        id, info, date, partNumb, selectedSeminarOption,
       } = this;
 
       if (this.detectNotValidInputs()) {
@@ -216,8 +220,12 @@ export default {
       const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
 
       if (this.editingMode) {
-        await this.editLesson({
-          id, info, date, part_numb: partNumb, seminar_id: seminarId.value,
+        this.editLesson({
+          id,
+          info,
+          date,
+          part_numb: partNumb,
+          seminar_id: selectedSeminarOption,
         })
           .then(() => {
             this.showNotif('successMessage', 'Сохранено!');
@@ -227,8 +235,11 @@ export default {
           })
           .finally(() => dismiss());
       } else {
-        await this.createLesson({
-          info, date, part_numb: partNumb, seminar_id: seminarId.value,
+        this.createLesson({
+          info,
+          date,
+          part_numb: partNumb,
+          seminar_id: selectedSeminarOption,
         })
           .then(() => {
             this.showNotif('successMessage', 'Сохранено!');
@@ -243,7 +254,7 @@ export default {
       this.clearInputs();
     },
     detectNotValidInputs() {
-      if (!this.seminarId.value) {
+      if (!this.selectedSeminarOption) {
         return true;
       }
 
@@ -261,7 +272,7 @@ export default {
       this.info = '';
       this.date = '';
       this.partNumb = '';
-      this.seminarId = {};
+      this.selectedSeminarOption = '';
       this.lesson = {};
       this.selectedIds = [];
     },

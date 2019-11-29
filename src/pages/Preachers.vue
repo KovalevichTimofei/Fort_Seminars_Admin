@@ -184,7 +184,7 @@ export default {
 
       this.selectedIds = [];
     },
-    async savePreacher() {
+    savePreacher() {
       const {
         ifo, photoUrl, info,
       } = this;
