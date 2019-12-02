@@ -399,7 +399,7 @@ export default {
           name: 'lessons',
           required: true,
           label: 'Уроки',
-          field: 'lessonsListForCurSeminar',
+          field: 'lessons',
           align: 'center',
           sortable: false,
         },
