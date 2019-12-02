@@ -59,7 +59,8 @@
                 class="input-text-field"
                 clear-icon="close"
                 v-model="title"
-                label="Название"
+                label="Название*"
+                :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                 style="width:300px"
               />
               <q-input
@@ -104,7 +105,8 @@
                       type="text"
                       class="input-text-field"
                       clear-icon="close"
-                      label="Название"
+                      label="Название*"
+                      :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                       @input="lessonDataInput($event, 'info', i)"
                       :value="lessonsListForCurSeminar[i-1].info"
                       style="width:300px"
@@ -112,9 +114,10 @@
                     <q-input
                       outlined
                       @input="lessonDataInput($event, 'date', i)"
+                      label="Дата проведения*"
                       mask="date"
                       :value="lessonsListForCurSeminar[i-1].date"
-                      :rules="['date']"
+                      :rules="['date', val => !!val || 'Это поле обязательно для заполнения.']"
                       style="width:300px"
                     >
                       <template v-slot:append>
@@ -174,13 +177,17 @@
               >
                 <q-select
                   outlined
-                  v-model="preacherId"
+                  v-model="selectedPreacherOption"
                   :options="preachersOptions"
+                  option-value="value"
+                  option-label="label"
                   label="Выбор проповедника"
                   :hint="createPreacherHint"
                   style="width:300px;"
                   behavior="menu"
                   @input="readPreacherInfo"
+                  emit-value
+                  map-options
                 />
               </div>
             </q-tab-panel>
@@ -194,7 +201,8 @@
                 class="input-text-field"
                 clear-icon="close"
                 v-model="name"
-                label="Имя"
+                label="Имя*"
+                :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                 style="width:300px"
               />
               <q-input
@@ -203,7 +211,8 @@
                 class="input-text-field"
                 clear-icon="close"
                 v-model="surname"
-                label="Фамилия"
+                label="Фамилия*"
+                :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                 style="width:300px"
               />
               <q-input
@@ -251,7 +260,8 @@
                     <q-input
                       outlined
                       disabled
-                      label="Название"
+                      label="Название*"
+                      :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                       v-model="title"
                       style="width:100%"
                     >
@@ -301,7 +311,8 @@
                     <q-input
                       outlined
                       disabled
-                      label="Имя, фамилия"
+                      label="Имя, фамилия*"
+                      :rules="[val => !!val || 'Это поле обязательно для заполнения.']"
                       v-model="ifo"
                       style="width:100%"
                       class="q-my-md"
@@ -421,7 +432,7 @@ export default {
       tab: 'choose',
       title: '',
       inviteLink: '',
-      preacherId: {},
+      selectedPreacherOption: '',
       name: '',
       surname: '',
       photoUrl: '',
@@ -483,28 +494,32 @@ export default {
       'fetchLessonsBySeminar',
     ]),
     readPreacherInfo() {
-      const preacher = this.preachers.find(item => item.id === this.preacherId.value);
+      const preacher = this.preachers.find(item => item.id === this.selectedPreacherOption);
       this.ifo = preacher.ifo;
       this.photoUrl = preacher.photo_url;
       this.preacherInfo = preacher.preacherInfo;
     },
-    async saveSeminar() {
+    saveSeminar() {
       const {
         ifo, photoUrl, preacherInfo, title, inviteLink,
       } = this;
 
-      const preacher = this.preacherId.value
-        ? { id: this.preacherId.value }
+      const preacher = this.selectedPreacherOption
+        ? { id: this.selectedPreacherOption }
         : {
           ifo,
           photoUrl,
           info: preacherInfo,
         };
 
+      if (this.detectNotValidInputs()) {
+        return;
+      }
+
       const dismiss = this.showNotif('pendingMessage', 'Сохранение...');
 
       if (this.editingMode) {
-        await this.editSeminar({
+        this.editSeminar({
           seminar: {
             ...this.seminar,
             title,
@@ -531,7 +546,7 @@ export default {
       } else {
         const seminarId = generateId();
 
-        await this.createSeminar({
+        this.createSeminar({
           seminar: {
             id: seminarId,
             title,
@@ -569,8 +584,7 @@ export default {
       this.title = this.seminar.title;
       this.inviteLink = this.seminar.invite_link;
 
-      this.preacherId.value = this.preacher.id;
-      this.preacherId.label = this.preacher.ifo;
+      this.selectedPreacherOption = this.preacher.id;
 
       this.lessonsNumber = this.lessons.length;
       this.lessonsListForCurSeminar = this.lessons;
@@ -622,8 +636,22 @@ export default {
     },
     tabChanged(value) {
       if (value === 'create') {
-        this.preacherId = {};
+        this.selectedPreacherOption = '';
       }
+    },
+    detectNotValidInputs() {
+      const {
+        lessonsListForCurSeminar,
+        ifo,
+        title,
+        selectedPreacherOption,
+      } = this;
+
+      if (lessonsListForCurSeminar.some(el => !el.info || !el.date)) {
+        return true;
+      }
+
+      return !(title && (selectedPreacherOption || ifo));
     },
     clearInputs() {
       this.step = 1;
@@ -631,7 +659,7 @@ export default {
       this.tab = 'choose';
       this.title = '';
       this.inviteLink = '';
-      this.preacherId = {};
+      this.selectedPreacherOption = '';
       this.name = '';
       this.surname = '';
       this.photoUrl = '';
