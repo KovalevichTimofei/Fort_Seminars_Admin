@@ -14,7 +14,7 @@
           v-model="login"
           label="Логин"
           lazy-rules
-          :rules="[ val => val || 'Это поле обязательно для заполнения!']"
+          :rules="[ val => !!val || 'Это поле обязательно для заполнения!']"
         />
         <q-input
           outlined
@@ -22,7 +22,7 @@
           v-model="password"
           label="Пароль"
           lazy-rules
-          :rules="[val => val || 'Это поле обязательно для заполнения!']"
+          :rules="[val => !!val || 'Это поле обязательно для заполнения!']"
         />
         <div>
           <q-btn label="Войти" type="submit" color="primary"/>

@@ -1,9 +1,20 @@
 
 const routes = [
-  { path: '/signin', component: () => import('pages/SignIn.vue') },
+  {
+    path: '/signin',
+    component: () => import('pages/SignIn.vue'),
+    beforeEnter(to, from, next) {
+      if (window.localStorage.getItem('token')) next('/seminars');
+      else next();
+    },
+  },
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
+    beforeEnter(to, from, next) {
+      if (!window.localStorage.getItem('token')) next('/signin');
+      else next();
+    },
     children: [
       { path: 'seminars', component: () => import('pages/Seminars.vue') },
       { path: 'preachers', component: () => import('pages/Preachers.vue') },
