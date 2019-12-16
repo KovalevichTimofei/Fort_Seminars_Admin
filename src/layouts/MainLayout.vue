@@ -15,7 +15,10 @@
           Администратор Semafort
         </q-toolbar-title>
 
-        <div>Logout</div>
+        <div @click="logOut">
+          Выйти
+          <q-icon name="exit_to_app" size="sm" />
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -73,6 +76,8 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex';
+
 export default {
   name: 'MainLayout',
 
@@ -80,6 +85,21 @@ export default {
     return {
       leftDrawerOpen: false,
     };
+  },
+  computed: {
+    ...mapState('auth', ['signed']),
+  },
+  methods: {
+    ...mapActions('auth', ['signOut']),
+    logOut() {
+      this.signOut();
+      this.$forceUpdate();
+    },
+  },
+  beforeUpdate() {
+    if (!this.signed) {
+      this.$router.push('/signin');
+    }
   },
 };
 </script>

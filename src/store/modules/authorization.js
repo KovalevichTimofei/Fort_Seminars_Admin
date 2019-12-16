@@ -3,6 +3,7 @@ let api;
 const stateObj = {
   loading: false,
   loadingFailed: false,
+  signed: false,
 };
 
 export const SIGNIN_START = 'signInStart';
@@ -19,8 +20,14 @@ function signIn({ commit }, data) {
     });
 }
 
+function signOut({ commit }) {
+  window.localStorage.removeItem('token');
+  commit(SIGNIN_FAIL);
+}
+
 const actions = {
   signIn,
+  signOut,
 };
 
 const mutations = {
@@ -33,10 +40,12 @@ const mutations = {
       window.localStorage.setItem('token', data.token);
     }
     state.loading = false;
+    state.signed = true;
   },
   signInFail(state) {
     state.loading = false;
     state.loadingFailed = true;
+    state.signed = false;
   },
 };
 
