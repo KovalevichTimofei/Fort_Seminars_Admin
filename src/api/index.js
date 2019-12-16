@@ -1,5 +1,4 @@
 import ApiClient from './ApiClient';
-import config from '../config';
 
 import AuthApi from './Authorization';
 import SeminarApi from './Seminars';
@@ -7,12 +6,12 @@ import PreachersApi from './Preachers';
 import ListenersApi from './Listeners';
 import LessonsApi from './Lessons';
 
-export default function () {
-  if (!config.apiPrefix) {
+export default function (data) {
+  if (!data.apiPrefix) {
     throw new Error('[apiPrefix] in config.js required');
   }
 
-  const api = new ApiClient({ prefix: config.apiPrefix });
+  const api = new ApiClient({ prefix: data.apiPrefix });
 
   return {
     apiClient: api,

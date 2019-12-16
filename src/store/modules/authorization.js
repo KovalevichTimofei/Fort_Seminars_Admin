@@ -1,4 +1,4 @@
-import api from '../../apiSingleton';
+let api;
 
 const stateObj = {
   loading: false,
@@ -40,9 +40,13 @@ const mutations = {
   },
 };
 
-export default {
-  namespaced: true,
-  state: stateObj,
-  actions,
-  mutations,
-};
+export default function (apiObj) {
+  api = apiObj;
+
+  return {
+    namespaced: true,
+    state: stateObj,
+    actions,
+    mutations,
+  };
+}

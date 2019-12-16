@@ -1,6 +1,7 @@
 export default class ApiClient {
   constructor({ prefix = 'api' } = {}) {
     this.prefix = prefix;
+    this.store = null;
   }
 
   get(requestUrl, payload = {}, params = {}) {
@@ -80,36 +81,30 @@ export default class ApiClient {
       }
     }
 
-    return fetch(`${this.prefix}/${url}`, init).then((res) => {
-      ({ status } = res);
-
-      if (status === 204) {
-        return status;
-      }
-
-      return res.json();
-    }).then((data) => {
-      if (status >= 400 && status !== 422) {
-        if (status === 404) {
-          console.log('Not found');
+    return fetch(`${this.prefix}/${url}`, init).then(res => res.json())
+      .then((data) => {
+        if (status >= 400 && status !== 422) {
+          if (status === 401) {
+            window.localStorage.removeItem('token');
+            this.store.$router.push('/signin');
+          }
+          if (status === 404) {
+            console.log('Not found');
+          }
+          throw new Error('Bad response from server');
         }
-        if (data.message) {
-          throw new Error(data.message);
+
+        if (status === 204) {
+          return status;
         }
-        throw new Error('Bad response from server');
-      }
+        if (status === 422) {
+          return Promise.reject(new Error({ status, data }));
+        }
+        if (data) {
+          return data;
+        }
 
-      if (status === 204) {
-        return status;
-      }
-      if (status === 422) {
-        return Promise.reject(new Error({ status, data }));
-      }
-      if (data) {
-        return data;
-      }
-
-      return Promise.reject(data.error);
-    });
+        return Promise.reject(data.error);
+      });
   }
 }
