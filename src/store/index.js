@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
+import auth from './modules/authorization';
 import seminars from './modules/seminars';
 import preachers from './modules/preachers';
 import lessons from './modules/lessons';
@@ -15,6 +16,7 @@ const debug = process.env.NODE_ENV !== 'production';
 export default function (/* { ssrContext } */) {
   return new Vuex.Store({
     modules: {
+      auth,
       seminars,
       preachers,
       lessons,

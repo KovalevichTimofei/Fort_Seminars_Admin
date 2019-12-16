@@ -1,6 +1,7 @@
 import ApiClient from './ApiClient';
 import config from '../config';
 
+import AuthApi from './Authorization';
 import SeminarApi from './Seminars';
 import PreachersApi from './Preachers';
 import ListenersApi from './Listeners';
@@ -15,6 +16,7 @@ export default function () {
 
   return {
     apiClient: api,
+    auth: new AuthApi({ apiClient: api }),
     seminars: new SeminarApi({ apiClient: api }),
     preachers: new PreachersApi({ apiClient: api }),
     listeners: new ListenersApi({ apiClient: api }),
