@@ -4,6 +4,7 @@ const stateObj = {
   loading: false,
   loadingFailed: false,
   signed: false,
+  refreshTokenPromise: null,
 };
 
 export const SIGNIN_START = 'signInStart';
@@ -25,9 +26,16 @@ function signOut({ commit }) {
   commit(SIGNIN_FAIL);
 }
 
+export const REFRESH_START = 'refreshStart';
+
+function refreshToken({ commit }) {
+  commit(REFRESH_START);
+}
+
 const actions = {
   signIn,
   signOut,
+  refreshToken,
 };
 
 const mutations = {
@@ -46,6 +54,14 @@ const mutations = {
     state.loading = false;
     state.loadingFailed = true;
     state.signed = false;
+  },
+  refreshStart(state) {
+    state.refreshTokenPromise = api.auth.refresh({
+      refreshToken: window.localStorage.getItem('refreshToken'),
+    }).then((data) => {
+      window.localStorage.setItem('token', data.token);
+      window.localStorage.setItem('refreshToken', data.refreshToken);
+    });
   },
 };
 

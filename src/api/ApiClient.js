@@ -81,7 +81,10 @@ export default class ApiClient {
       }
     }
 
-    return fetch(`${this.prefix}/${url}`, init).then(res => res.json())
+    return fetch(`${this.prefix}/${url}`, init).then((res) => {
+      ({ status } = res);
+      return res.json();
+    })
       .then((data) => {
         if (status >= 400 && status !== 422) {
           if (status === 401) {
