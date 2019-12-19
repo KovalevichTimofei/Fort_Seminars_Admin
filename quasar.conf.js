@@ -82,6 +82,7 @@ module.exports = function (ctx) {
         'QDate',
         'QPopupProxy',
         'QSpinnerHourglass',
+        'QForm',
       ],
 
       directives: [

@@ -1,4 +1,4 @@
-import api from '../../apiSingleton';
+let api;
 
 const stateObj = {
   preacher: {},
@@ -153,10 +153,14 @@ const mutations = {
   },
 };
 
-export default {
-  namespaced: true,
-  state: stateObj,
-  getters,
-  actions,
-  mutations,
-};
+export default function (apiObj) {
+  api = apiObj;
+
+  return {
+    namespaced: true,
+    state: stateObj,
+    getters,
+    actions,
+    mutations,
+  };
+}

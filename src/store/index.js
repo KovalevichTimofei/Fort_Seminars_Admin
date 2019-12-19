@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
+import api from '../apiSingleton';
+import auth from './modules/authorization';
 import seminars from './modules/seminars';
 import preachers from './modules/preachers';
 import lessons from './modules/lessons';
@@ -13,14 +15,19 @@ Vue.use(Vuex);
 const debug = process.env.NODE_ENV !== 'production';
 
 export default function (/* { ssrContext } */) {
-  return new Vuex.Store({
+  const store = new Vuex.Store({
     modules: {
-      seminars,
-      preachers,
-      lessons,
-      listeners,
+      auth: auth(api),
+      seminars: seminars(api),
+      preachers: preachers(api),
+      lessons: lessons(api),
+      listeners: listeners(api),
     },
     strict: debug,
     plugins: debug ? [createLogger()] : [],
   });
+
+  api.apiClient.store = store;
+
+  return store;
 }
