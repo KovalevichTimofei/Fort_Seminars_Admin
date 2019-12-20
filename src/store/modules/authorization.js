@@ -23,6 +23,7 @@ function signIn({ commit }, data) {
 
 function signOut({ commit }) {
   window.localStorage.removeItem('token');
+  window.localStorage.removeItem('refreshToken');
   commit(SIGNIN_FAIL);
 }
 
@@ -46,6 +47,7 @@ const mutations = {
   signInSuccess(state, data) {
     if (data) {
       window.localStorage.setItem('token', data.token);
+      window.localStorage.setItem('refreshToken', data.refreshToken);
     }
     state.loading = false;
     state.signed = true;

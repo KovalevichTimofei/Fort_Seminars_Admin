@@ -87,6 +87,12 @@ export default class ApiClient {
     })
       .then((data) => {
         if (status >= 400 && status !== 422) {
+          if (status === 401 && data.message === 'Not Authorized') {
+            this.store.dispatch('auth/refreshToken');
+            return this.store.state.auth.refreshTokenPromise.then(() => this.request({
+              url, method, body, contentType,
+            }));
+          }
           if (status === 401) {
             window.localStorage.removeItem('token');
             this.store.$router.push('/signin');
