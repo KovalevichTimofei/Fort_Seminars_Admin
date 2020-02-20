@@ -96,10 +96,5 @@ export default {
       this.$forceUpdate();
     },
   },
-  beforeUpdate() {
-    if (!this.signed) {
-      this.$router.push('/signin');
-    }
-  },
 };
 </script>

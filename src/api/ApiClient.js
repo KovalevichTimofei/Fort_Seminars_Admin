@@ -46,6 +46,20 @@ export default class ApiClient {
     });
   }
 
+  static refreshTokenPromise = null;
+
+  refreshToken() {
+    ApiClient.refreshTokenPromise = this.post('auth/refresh', {
+      refreshToken: window.localStorage.getItem('refreshToken'),
+    }).then((data) => {
+      if (data.code === 401) {
+        Promise.reject();
+      }
+      window.localStorage.setItem('token', data.token);
+      window.localStorage.setItem('refreshToken', data.refreshToken);
+    });
+  }
+
   request({
     url, method, body, contentType,
   }) {
@@ -81,9 +95,19 @@ export default class ApiClient {
       }
     }
 
-    return fetch(`${this.prefix}/${url}`, init).then(res => res.json())
+    return fetch(`${this.prefix}/${url}`, init).then((res) => {
+      ({ status } = res);
+      return res.json();
+    })
       .then((data) => {
         if (status >= 400 && status !== 422) {
+          if (status === 401 && data.message === 'Not Authorized') {
+            console.log('refresh');
+            this.refreshToken();
+            return ApiClient.refreshTokenPromise.then(() => this.request({
+              url, method, body, contentType,
+            }));
+          }
           if (status === 401) {
             window.localStorage.removeItem('token');
             this.store.$router.push('/signin');
